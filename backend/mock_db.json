@@ -1,0 +1,129 @@
+{
+  "providers": {
+    "0": {
+      "name": "Arshad Electrics",
+      "service_type": "electrician",
+      "rating": 4.8,
+      "price_per_hour": 500,
+      "distance": 1.2,
+      "availability": true,
+      "location": "Gulshan-e-Iqbal, Karachi",
+      "experience": "10 years"
+    },
+    "1": {
+      "name": "Imran Wireman",
+      "service_type": "electrician",
+      "rating": 4.5,
+      "price_per_hour": 400,
+      "distance": 2.5,
+      "availability": true,
+      "location": "Johar, Karachi",
+      "experience": "5 years"
+    },
+    "2": {
+      "name": "Sajid Plumber",
+      "service_type": "plumber",
+      "rating": 4.9,
+      "price_per_hour": 600,
+      "distance": 0.8,
+      "availability": true,
+      "location": "DHA, Karachi",
+      "experience": "15 years"
+    },
+    "3": {
+      "name": "Kashif AC Services",
+      "service_type": "ac_repair",
+      "rating": 4.7,
+      "price_per_hour": 1200,
+      "distance": 3.0,
+      "availability": true,
+      "location": "North Nazimabad, Karachi",
+      "experience": "8 years"
+    },
+    "b99f20c4-0fb1-4318-910b-41017194287d": {
+      "name": "Ali AC Services",
+      "service_type": "AC Repair",
+      "location": "G-13",
+      "rating": 4.8,
+      "price_per_hour": 1500,
+      "availability": true,
+      "distance": 1.2
+    },
+    "34c074e7-67ce-41e6-b273-d54418bf9186": {
+      "name": "Quick Fix Plumbers",
+      "service_type": "Plumber",
+      "location": "G-13",
+      "rating": 4.5,
+      "price_per_hour": 1000,
+      "availability": true,
+      "distance": 0.5
+    },
+    "1f933668-5563-46e0-a90d-e37e17a42854": {
+      "name": "Islamabad Cool Tech",
+      "service_type": "AC Repair",
+      "location": "G-13",
+      "rating": 4.2,
+      "price_per_hour": 1200,
+      "availability": true,
+      "distance": 2.5
+    },
+    "509c10be-27f5-4e33-aac6-c2d88da9332c": {
+      "name": "Expert Handyman",
+      "service_type": "AC Repair",
+      "location": "G-13",
+      "rating": 4.9,
+      "price_per_hour": 2000,
+      "availability": false,
+      "distance": 1.0
+    }
+  },
+  "bookings": {
+    "17a3ad01-79c6-4b50-bf9b-43f6eaaaff7a": {
+      "id": "17a3ad01-79c6-4b50-bf9b-43f6eaaaff7a",
+      "requestId": "manual",
+      "providerId": "Arshad Electrics",
+      "scheduledTime": "2026-05-16T06:57:57.280073",
+      "status": "CONFIRMED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-16T06:57:57.280086"
+    },
+    "50d92355-c6a4-4126-8369-4055a3a81542": {
+      "id": "50d92355-c6a4-4126-8369-4055a3a81542",
+      "requestId": "manual",
+      "providerId": "Arshad Electrics",
+      "scheduledTime": "2026-05-16T06:58:12.140331",
+      "status": "CONFIRMED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-16T06:58:12.140347"
+    },
+    "9eeb19ca-7c65-4110-bd55-efa8b92ba66e": {
+      "id": "9eeb19ca-7c65-4110-bd55-efa8b92ba66e",
+      "requestId": "manual",
+      "providerId": "Arshad Electrics",
+      "scheduledTime": "2026-05-16T06:58:47.422629",
+      "status": "CONFIRMED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-16T06:58:47.422636"
+    },
+    "7e795e5a-e9c2-4743-b2b5-9c0c27c862e9": {
+      "id": "7e795e5a-e9c2-4743-b2b5-9c0c27c862e9",
+      "requestId": "manual",
+      "providerId": "2",
+      "scheduledTime": "2026-05-16T07:48:13.340237",
+      "status": "BOOKED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-16T07:48:13.340258"
+    },
+    "d90889d1-10e6-4624-90b7-bf0a8342172e": {
+      "id": "d90889d1-10e6-4624-90b7-bf0a8342172e",
+      "requestId": "manual",
+      "providerId": "Sajid Plumber",
+      "scheduledTime": "2026-05-16T07:48:15.383778",
+      "status": "REMINDED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-16T07:48:15.383799",
+      "latest_notification": "Reminder: Sajid Plumber will arrive in 1 hour.",
+      "notification_sent_at": "2026-05-16T07:48:20.402282"
+    }
+  }
+}
