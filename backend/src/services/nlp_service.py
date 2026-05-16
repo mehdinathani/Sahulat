@@ -7,37 +7,47 @@ from ..models.intent import ExtractedIntent
 
 load_dotenv()
 
+_NLP_SYSTEM_INSTRUCTION = (
+    "You are a structured intent extractor for a Pakistani service marketplace. "
+    "Your ONLY job is to parse user messages and return a valid JSON object. "
+    "You understand English, Urdu (اردو), and Roman Urdu (Urdu written in Latin script). "
+    "Never return anything other than the JSON object — no markdown, no explanation."
+)
+
 class NLPService:
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            system_instruction=_NLP_SYSTEM_INSTRUCTION,
+        )
 
     async def extract_intent(self, text: str) -> ExtractedIntent:
         """
         Extract service type, location, and time from natural language.
         Supports English, Urdu, and Roman Urdu.
         """
-        prompt = f"""
-        Extract the following information from the user's service request:
-        - service_type: (e.g., AC Repair, Plumber, Tutor)
-        - location: (any mentioned sector or area like G-13, DHA, etc.)
-        - time_preference: (e.g., subah, evening, tomorrow, 10am)
-        - language: (one of: en, ur, roman_ur)
-        - confidence: (float between 0 and 1)
+        prompt = f"""Extract the following fields from the user's service request and return ONLY a JSON object:
 
-        User Request: "{text}"
+Fields:
+- "service_type": The service needed in English (e.g., "AC Repair", "Plumber", "Electrician", "Tutor", "Carpenter"). Normalize synonyms: "AC wala" → "AC Repair", "nal wala" → "Plumber", "bijli wala" → "Electrician".
+- "location": Any area/sector mentioned (e.g., "G-13", "DHA", "Gulshan-e-Iqbal", "Johar", "Clifton"). Return null if not mentioned.
+- "time_preference": Any time hint (e.g., "kal subah", "tomorrow morning", "5 baje", "ASAP"). Return null if not mentioned.
+- "language": Detect the language — return "ur" if Arabic-script Urdu, "roman_ur" if Latin-script Urdu/mixed, "en" if English only.
+- "confidence": A float 0.0–1.0 reflecting extraction confidence.
 
-        Return ONLY a JSON object matching this structure:
-        {{
-            "service_type": "string",
-            "location": "string or null",
-            "time_preference": "string or null",
-            "language": "string",
-            "confidence": float
-        }}
-        """
+User Request: "{text}"
+
+Return ONLY this JSON structure, nothing else:
+{{
+    "service_type": "string",
+    "location": "string or null",
+    "time_preference": "string or null",
+    "language": "en | ur | roman_ur",
+    "confidence": float
+}}"""
         
         # Using simple generation + manual JSON parsing for robustness across Gemini versions
         # unless response_mime_type is supported in the environment's version
