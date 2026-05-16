@@ -1,0 +1,147 @@
+# Tasks: Sahulat-AI Orchestrator
+
+**Input**: Design documents from `/specs/001-sahulat-ai/`
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
+
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- Include exact file paths in descriptions
+
+## Phase 1: Setup (Shared Infrastructure)
+
+**Purpose**: Project initialization and basic structure
+
+- [ ] T001 [P] Create project structure for backend/ and mobile/ directories
+- [ ] T002 [P] Initialize FastAPI project in backend/ and add dependencies (fastapi, uvicorn, firebase-admin)
+- [ ] T003 [P] Initialize Flutter project in mobile/ and add dependencies (http, provider/riverpod)
+- [ ] T004 [P] Setup Firebase project and download service account key to backend/service-account.json (mock)
+- [ ] T005 [P] Configure environment variables in backend/.env
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+
+- [ ] T006 [P] Implement base models in backend/src/models/schemas.py (Provider, Request, Booking)
+- [ ] T007 [P] Implement Firebase utility service in backend/src/services/firebase_service.py
+- [ ] T008 [P] Initialize Antigravity orchestrator configuration in backend/src/services/orchestrator.py
+- [ ] T009 [P] Setup FastAPI router and base endpoints in backend/src/api/routes.py
+
+**Checkpoint**: Foundation ready - user story implementation can now begin
+
+---
+
+## Phase 3: User Story 1 - Natural Language Service Request (Priority: P1) 🎯 MVP
+
+**Goal**: Extract service intent, location, and time from user messages in English/Urdu/Roman Urdu.
+
+**Independent Test**: Send a POST to `/chat` with a Roman Urdu message and verify the extracted intent in the response.
+
+### Implementation for User Story 1
+
+- [ ] T010 [P] [US1] Create Intent model in backend/src/models/intent.py
+- [ ] T011 [US1] Implement NLP/LLM tool in backend/src/services/nlp_service.py using Antigravity
+- [ ] T012 [US1] Implement `/chat` endpoint in backend/src/api/chat.py
+- [ ] T013 [P] [US1] Create chat screen in mobile/lib/screens/chat_screen.dart
+- [ ] T014 [US1] Integrate chat service in mobile/lib/services/api_service.dart
+
+**Checkpoint**: User Story 1 functional - intent extraction working end-to-end.
+
+---
+
+## Phase 4: User Story 2 - Provider Matching & Recommendation (Priority: P1)
+
+**Goal**: Match intent with the best available provider based on rating and distance.
+
+**Independent Test**: Mock 3 providers in Firebase and verify the orchestrator selects the correct one with reasoning.
+
+### Implementation for User Story 2
+
+- [ ] T015 [P] [US2] Populate mock provider data in Firebase using backend/scripts/seed_providers.py
+- [ ] T016 [US2] Implement provider matching tool in backend/src/services/matching_service.py
+- [ ] T017 [US2] Update Antigravity workflow in backend/src/services/orchestrator.py to include matching step
+- [ ] T018 [P] [US2] Create provider recommendation card UI in mobile/lib/components/provider_card.dart
+- [ ] T019 [US2] Display recommendations in mobile/lib/screens/chat_screen.dart
+
+**Checkpoint**: User Story 2 functional - recommendations appearing with reasoning.
+
+---
+
+## Phase 5: User Story 3 - End-to-End Booking Simulation (Priority: P1)
+
+**Goal**: Simulate booking confirmation and state update.
+
+**Independent Test**: Trigger a booking and verify the status changes to "BOOKED" in Firebase.
+
+### Implementation for User Story 3
+
+- [ ] T020 [P] [US3] Implement booking logic in backend/src/services/booking_service.py
+- [ ] T021 [US3] Implement `/booking/confirm` endpoint in backend/src/api/booking.py
+- [ ] T022 [P] [US3] Create booking confirmation screen in mobile/lib/screens/booking_summary.dart
+- [ ] T023 [US3] Connect "Book Now" action to backend in mobile/lib/services/api_service.dart
+
+**Checkpoint**: User Story 3 functional - bookings successfully simulated.
+
+---
+
+## Phase 6: User Story 4 - Agentic Reasoning & Follow-up (Priority: P2)
+
+**Goal**: Automate reminders and follow-up updates.
+
+**Independent Test**: Check logs/Firebase for a "REMINDED" status update after a simulated booking.
+
+### Implementation for User Story 4
+
+- [ ] T024 [US4] Implement follow-up agent in backend/src/services/followup_service.py
+- [ ] T025 [US4] Integrate follow-up scheduling in backend/src/services/booking_service.py (FastAPI BackgroundTasks)
+- [ ] T026 [P] [US4] Add "My Bookings" screen to view status in mobile/lib/screens/bookings_list.dart
+
+**Checkpoint**: User Story 4 functional - follow-up automation working.
+
+---
+
+## Phase 7: Polish & Demo Readiness
+
+**Purpose**: Final touches for the hackathon demo.
+
+- [ ] T027 [P] Implement execution trace logger in backend/src/services/logger.py
+- [ ] T028 [P] Create admin/log view for demo in backend/src/api/logs.py
+- [ ] T029 [P] Final UI styling for "Premium" look (mobile/lib/theme.dart)
+- [ ] T030 Perform end-to-end dry run and record logs
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies.
+- **Foundational (Phase 2)**: Depends on Phase 1.
+- **US1-US3**: Must be completed in order for MVP.
+- **US4**: Can be added after US3.
+
+### Parallel Opportunities
+
+- T001-T005 can be done in parallel.
+- T010 can start while T011 is in progress.
+- T013 (Mobile UI) can start once T012 (API) is defined.
+- T015 (Seeding) can happen anytime after Phase 1.
+
+## Implementation Strategy
+
+### MVP First (US1 + US2 + US3)
+
+1. Setup + Foundation.
+2. Complete US1 (Intent).
+3. Complete US2 (Matching).
+4. Complete US3 (Booking).
+5. Validate end-to-end flow.
+
+## Notes
+
+- All tasks follow the `[ID] [P] [Story] Description` format.
+- Mobile UI should use a premium theme (vibrant colors, smooth transitions).
+- Antigravity logs are essential for the 25% evaluation criteria.

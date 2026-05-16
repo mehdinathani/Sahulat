@@ -1,0 +1,45 @@
+openapi: 3.0.0
+info:
+  title: Sahulat-AI API
+  version: 1.0.0
+paths:
+  /chat:
+    post:
+      summary: Send a natural language request to the orchestrator
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Orchestrator response with intent and recommendations
+  /booking/confirm:
+    post:
+      summary: Confirm a booking with a recommended provider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                providerId:
+                  type: string
+                timeSlot:
+                  type: string
+      responses:
+        '200':
+          description: Booking confirmation details
+  /logs:
+    get:
+      summary: Get agentic reasoning logs for the demo
+      responses:
+        '200':
+          description: List of execution traces
