@@ -48,8 +48,44 @@ class ApiService {
               : null,
           providers: providers,
         );
+      }
+    } catch (e) {
+      throw Exception('Error connecting to backend: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> confirmBooking(String providerId, {String? requestId}) async {
+    final url = Uri.parse('$baseUrl/api/booking/confirm');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'provider_id': providerId,
+          if (requestId != null) 'request_id': requestId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(utf8.decode(response.bodyBytes));
       } else {
-        throw Exception('Failed to send message: ${response.statusCode}');
+        throw Exception('Failed to confirm booking: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error connecting to backend: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getBookings() async {
+    final url = Uri.parse('$baseUrl/api/booking/list');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+        return data.cast<Map<String, dynamic>>();
+      } else {
+        throw Exception('Failed to fetch bookings: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Error connecting to backend: $e');

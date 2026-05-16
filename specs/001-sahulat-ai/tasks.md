@@ -60,11 +60,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T015 [P] [US2] Populate mock provider data in Firebase using backend/scripts/seed_providers.py
-- [ ] T016 [US2] Implement provider matching tool in backend/src/services/matching_service.py
-- [ ] T017 [US2] Update Antigravity workflow in backend/src/services/orchestrator.py to include matching step
-- [ ] T018 [P] [US2] Create provider recommendation card UI in mobile/lib/components/provider_card.dart
-- [ ] T019 [US2] Display recommendations in mobile/lib/screens/chat_screen.dart
+- [x] T015 [P] [US2] Populate mock provider data in Firebase using backend/scripts/seed_providers.py
+- [x] T016 [US2] Implement provider matching tool in backend/src/services/matching_service.py
+- [x] T017 [US2] Update Antigravity workflow in backend/src/services/orchestrator.py to include matching step
+- [x] T018 [P] [US2] Create provider recommendation card UI in mobile/lib/components/provider_card.dart
+- [x] T019 [US2] Display recommendations in mobile/lib/screens/chat_screen.dart
 
 **Checkpoint**: User Story 2 functional - recommendations appearing with reasoning.
 
@@ -78,10 +78,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T020 [P] [US3] Implement booking logic in backend/src/services/booking_service.py
-- [ ] T021 [US3] Implement `/booking/confirm` endpoint in backend/src/api/booking.py
-- [ ] T022 [P] [US3] Create booking confirmation screen in mobile/lib/screens/booking_summary.dart
-- [ ] T023 [US3] Connect "Book Now" action to backend in mobile/lib/services/api_service.dart
+- [x] T020 [P] [US3] Implement booking logic in backend/src/services/booking_service.py
+- [x] T021 [US3] Implement `/booking/confirm` endpoint in backend/src/api/booking.py
+- [x] T022 [P] [US3] Create booking confirmation screen in mobile/lib/screens/booking_summary.dart
+- [x] T023 [US3] Connect "Book Now" action to backend in mobile/lib/services/api_service.dart
 
 **Checkpoint**: User Story 3 functional - bookings successfully simulated.
 
@@ -95,9 +95,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T024 [US4] Implement follow-up agent in backend/src/services/followup_service.py
-- [ ] T025 [US4] Integrate follow-up scheduling in backend/src/services/booking_service.py (FastAPI BackgroundTasks)
-- [ ] T026 [P] [US4] Add "My Bookings" screen to view status in mobile/lib/screens/bookings_list.dart
+- [x] T024 [US4] Implement follow-up agent in backend/src/services/followup_service.py
+- [x] T025 [US4] Integrate follow-up scheduling in backend/src/services/booking_service.py (FastAPI BackgroundTasks)
+- [x] T026 [P] [US4] Add "My Bookings" screen to view status in mobile/lib/screens/bookings_list.dart
 
 **Checkpoint**: User Story 4 functional - follow-up automation working.
 
@@ -107,10 +107,10 @@
 
 **Purpose**: Final touches for the hackathon demo.
 
-- [ ] T027 [P] Implement execution trace logger in backend/src/services/logger.py
-- [ ] T028 [P] Create admin/log view for demo in backend/src/api/logs.py
-- [ ] T029 [P] Final UI styling for "Premium" look (mobile/lib/theme.dart)
-- [ ] T030 Perform end-to-end dry run and record logs
+- [x] T027 [P] Implement execution trace logger in backend/src/services/logger.py
+- [x] T028 [P] Create admin/log view for demo in backend/src/api/logs.py
+- [x] T029 [P] Final UI styling for "Premium" look (mobile/lib/theme.dart)
+- [x] T030 Perform end-to-end dry run and record logs
 
 ---
 

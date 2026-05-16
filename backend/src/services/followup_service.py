@@ -19,7 +19,7 @@ class FollowupService:
         booking_service.update_booking(
             booking_id=booking_id, 
             update_data={
-                "status": BookingStatus.ON_THE_WAY.value,
+                "status": BookingStatus.REMINDED.value,
                 "latest_notification": notification_message,
                 "notification_sent_at": datetime.utcnow().isoformat()
             }

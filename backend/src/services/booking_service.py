@@ -20,7 +20,7 @@ class BookingService:
             "requestId": request_id or "manual",
             "providerId": provider_id,
             "scheduledTime": datetime.utcnow().isoformat(),
-            "status": BookingStatus.CONFIRMED.value,
+            "status": BookingStatus.BOOKED.value,
             "reasoning": "User selected the recommended provider.",
             "createdAt": datetime.utcnow().isoformat()
         }

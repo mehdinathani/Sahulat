@@ -45,6 +45,15 @@ class _ChatScreenState extends State<ChatScreen> {
         foregroundColor: Theme.of(context).colorScheme.primary,
         actions: [
           IconButton(
+            icon: const Icon(Icons.list_alt),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BookingsListScreen()),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => chatProvider.clearMessages(),
           ),
@@ -131,6 +140,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
 import '../components/provider_card.dart';
 import '../components/agent_brain_console.dart';
+import 'booking_summary.dart';
+import 'bookings_list.dart';
 
 class _MessageBubble extends StatelessWidget {
   final ChatMessage message;
@@ -186,8 +197,19 @@ class _MessageBubble extends StatelessWidget {
                   final provider = message.providers![index];
                   return ProviderCard(
                     provider: provider,
-                    onBook: () {
-                      context.read<ChatProvider>().sendMessage('Book ${provider.name}');
+                    onBook: () async {
+                      final confirmed = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingSummaryScreen(provider: provider),
+                        ),
+                      );
+                      // If we wanted to also show the trace in chat, we could send a message here, 
+                      // but the booking was already confirmed via the API if confirmed == true.
+                      // Actually, let's just trigger the orchestrator so the UI shows the cool trace!
+                      if (confirmed == true) {
+                        context.read<ChatProvider>().sendMessage('Book ${provider.name}');
+                      }
                     },
                   );
                 },

@@ -41,13 +41,13 @@ class Orchestrator:
             booking = booking_service.create_booking(provider_id=provider_name)
             
             trace.append(AgentTrace(
-                step="Booking Confirmed",
+                step="[Action Executed: Simulated Booking Confirmed]",
                 thought="Booking successfully created in the system.",
                 observation=f"Booking ID: {booking['id']} for {provider_name}"
             ))
             
             trace.append(AgentTrace(
-                step="Action Simulated",
+                step="[Action Planned: Background Follow-up SMS Scheduled in 5 seconds]",
                 thought="Scheduling follow-up automation for the booking.",
                 observation=f"Scheduled SMS reminder for {provider_name} in 1 hour"
             ))

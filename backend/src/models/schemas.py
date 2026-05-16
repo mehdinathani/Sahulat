@@ -10,6 +10,7 @@ class RequestStatus(str, Enum):
     COMPLETED = "COMPLETED"
 
 class BookingStatus(str, Enum):
+    BOOKED = "BOOKED"
     CONFIRMED = "CONFIRMED"
     REMINDED = "REMINDED"
     IN_PROGRESS = "IN_PROGRESS"
@@ -46,7 +47,7 @@ class Booking(BaseModel):
     requestId: str
     providerId: str
     scheduledTime: datetime
-    status: BookingStatus = BookingStatus.CONFIRMED
+    status: BookingStatus = BookingStatus.BOOKED
     reasoning: str
 
 class ChatMessage(BaseModel):
