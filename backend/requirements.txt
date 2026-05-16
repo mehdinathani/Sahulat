@@ -4,5 +4,8 @@ firebase-admin
 python-dotenv
 pydantic
 google-generativeai
+google-cloud-language
+google-cloud-speech
+python-multipart
 pytest
 httpx

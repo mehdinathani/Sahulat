@@ -3,12 +3,13 @@ from ..models.schemas import ChatMessage, ChatResponse, Booking
 from ..services.orchestrator import orchestrator
 from typing import List
 
-from . import chat, booking, logs
+from . import chat, booking, logs, stt
 
 router = APIRouter()
 router.include_router(chat.router, prefix="/chat", tags=["chat"])
 router.include_router(booking.router, prefix="/booking", tags=["booking"])
 router.include_router(logs.router, prefix="/logs", tags=["logs"])
+router.include_router(stt.router, prefix="/stt", tags=["stt"])
 
 @router.get("/providers")
 async def get_providers(category: str = None):

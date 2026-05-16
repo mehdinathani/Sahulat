@@ -145,3 +145,18 @@
 - All tasks follow the `[ID] [P] [Story] Description` format.
 - Mobile UI should use a premium theme (vibrant colors, smooth transitions).
 - Antigravity logs are essential for the 25% evaluation criteria.
+
+---
+
+## Phase 8: GCP Cloud Integration (Bonus — $5 Credits)
+
+**Purpose**: Elevate prototype with real Google Cloud APIs to impress judges.
+
+- [x] T031 [P] Add `google-cloud-language` + `google-cloud-speech` + `python-multipart` to `backend/requirements.txt`
+- [x] T032 [US1] Implement `analyze_entities()` in `backend/src/services/nlp_service.py` using Google Cloud Natural Language API (entity enrichment layer over Gemini)
+- [x] T033 [US1] Add `[Cloud Integration: Google NLP API used for entity extraction]` trace step to `backend/src/services/orchestrator.py`
+- [x] T034 [P] Create `backend/src/api/stt.py` — POST `/api/stt` endpoint using Google Cloud Speech-to-Text v1 (en-US + ur-PK, with mock fallback)
+- [x] T035 [P] Register STT router in `backend/src/api/routes.py` under `/stt` prefix
+- [x] T036 [P] Add `transcribeAudio(File)` method to `mobile/lib/services/api_service.dart` for multipart audio upload
+- [x] T037 [P] Add `record: ^5.2.0` and `permission_handler: ^11.4.0` packages to `mobile/pubspec.yaml`
+

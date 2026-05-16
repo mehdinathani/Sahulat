@@ -163,6 +163,24 @@ class Orchestrator:
             ),
         ))
 
+        # Cloud NLP entity enrichment trace — always show this step for demo transparency
+        cloud_entities = nlp_service.analyze_entities(user_message)
+        entity_summary = (
+            ", ".join(f"{e['name']} ({e['type']})" for e in cloud_entities[:4])
+            if cloud_entities
+            else "No additional entities detected"
+        )
+        trace.append(AgentTrace(
+            step="[Cloud Integration: Google NLP API used for entity extraction]",
+            thought=(
+                "Google Cloud Natural Language API analyzed the raw text to extract "
+                "named entities (LOCATION, PERSON, OTHER) as a supplementary signal. "
+                "These enrich the Gemini intent with structured geographic context."
+            ),
+            action="nlp_service.analyze_entities",
+            observation=f"Entities detected: {entity_summary}",
+        ))
+
         # ------------------------------------------------------------------ #
         # STEP 2 — Provider Discovery                                         #
         # ------------------------------------------------------------------ #
