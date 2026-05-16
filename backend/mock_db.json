@@ -1,0 +1,73 @@
+{
+  "providers": {
+    "0": {
+      "name": "Arshad Electrics",
+      "service_type": "electrician",
+      "rating": 4.8,
+      "price_per_hour": 500,
+      "distance": 1.2,
+      "availability": true,
+      "location": "Gulshan-e-Iqbal, Karachi",
+      "experience": "10 years"
+    },
+    "1": {
+      "name": "Imran Wireman",
+      "service_type": "electrician",
+      "rating": 4.5,
+      "price_per_hour": 400,
+      "distance": 2.5,
+      "availability": true,
+      "location": "Johar, Karachi",
+      "experience": "5 years"
+    },
+    "2": {
+      "name": "Sajid Plumber",
+      "service_type": "plumber",
+      "rating": 4.9,
+      "price_per_hour": 600,
+      "distance": 0.8,
+      "availability": true,
+      "location": "DHA, Karachi",
+      "experience": "15 years"
+    },
+    "3": {
+      "name": "Kashif AC Services",
+      "service_type": "ac_repair",
+      "rating": 4.7,
+      "price_per_hour": 1200,
+      "distance": 3.0,
+      "availability": true,
+      "location": "North Nazimabad, Karachi",
+      "experience": "8 years"
+    }
+  },
+  "bookings": {
+    "17a3ad01-79c6-4b50-bf9b-43f6eaaaff7a": {
+      "id": "17a3ad01-79c6-4b50-bf9b-43f6eaaaff7a",
+      "requestId": "manual",
+      "providerId": "Arshad Electrics",
+      "scheduledTime": "2026-05-16T06:57:57.280073",
+      "status": "CONFIRMED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-16T06:57:57.280086"
+    },
+    "50d92355-c6a4-4126-8369-4055a3a81542": {
+      "id": "50d92355-c6a4-4126-8369-4055a3a81542",
+      "requestId": "manual",
+      "providerId": "Arshad Electrics",
+      "scheduledTime": "2026-05-16T06:58:12.140331",
+      "status": "CONFIRMED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-16T06:58:12.140347"
+    },
+    "9eeb19ca-7c65-4110-bd55-efa8b92ba66e": {
+      "id": "9eeb19ca-7c65-4110-bd55-efa8b92ba66e",
+      "requestId": "manual",
+      "providerId": "Arshad Electrics",
+      "scheduledTime": "2026-05-16T06:58:47.422629",
+      "status": "CONFIRMED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-16T06:58:47.422636"
+    }
+  }
+}

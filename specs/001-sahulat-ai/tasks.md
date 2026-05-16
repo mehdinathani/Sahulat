@@ -15,20 +15,20 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project structure for backend/ and mobile/ directories
-- [ ] T002 [P] Initialize FastAPI project in backend/ and add dependencies (fastapi, uvicorn, firebase-admin)
-- [ ] T003 [P] Initialize Flutter project in mobile/ and add dependencies (http, provider/riverpod)
-- [ ] T004 [P] Setup Firebase project and download service account key to backend/service-account.json (mock)
-- [ ] T005 [P] Configure environment variables in backend/.env
+- [x] T001 [P] Create project structure for backend/ and mobile/ directories
+- [x] T002 [P] Initialize FastAPI project in backend/ and add dependencies (fastapi, uvicorn, firebase-admin)
+- [x] T003 [P] Initialize Flutter project in mobile/ and add dependencies (http, provider/riverpod)
+- [x] T004 [P] Setup Firebase project and download service account key to backend/service-account.json (mock)
+- [x] T005 [P] Configure environment variables in backend/.env
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T006 [P] Implement base models in backend/src/models/schemas.py (Provider, Request, Booking)
-- [ ] T007 [P] Implement Firebase utility service in backend/src/services/firebase_service.py
-- [ ] T008 [P] Initialize Antigravity orchestrator configuration in backend/src/services/orchestrator.py
-- [ ] T009 [P] Setup FastAPI router and base endpoints in backend/src/api/routes.py
+- [x] T006 [P] Implement base models in backend/src/models/schemas.py (Provider, Request, Booking)
+- [x] T007 [P] Implement Firebase utility service in backend/src/services/firebase_service.py
+- [x] T008 [P] Initialize Antigravity orchestrator configuration in backend/src/services/orchestrator.py
+- [x] T009 [P] Setup FastAPI router and base endpoints in backend/src/api/routes.py
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -42,11 +42,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Create Intent model in backend/src/models/intent.py
-- [ ] T011 [US1] Implement NLP/LLM tool in backend/src/services/nlp_service.py using Antigravity
-- [ ] T012 [US1] Implement `/chat` endpoint in backend/src/api/chat.py
-- [ ] T013 [P] [US1] Create chat screen in mobile/lib/screens/chat_screen.dart
-- [ ] T014 [US1] Integrate chat service in mobile/lib/services/api_service.dart
+- [x] T010 [P] [US1] Create Intent model in backend/src/models/intent.py
+- [x] T011 [US1] Implement NLP/LLM tool in backend/src/services/nlp_service.py using Antigravity
+- [x] T012 [US1] Implement `/chat` endpoint in backend/src/api/chat.py
+- [x] T013 [P] [US1] Create chat screen in mobile/lib/screens/chat_screen.dart
+- [x] T014 [US1] Integrate chat service in mobile/lib/services/api_service.dart
 
 **Checkpoint**: User Story 1 functional - intent extraction working end-to-end.
 
