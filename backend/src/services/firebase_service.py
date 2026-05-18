@@ -15,7 +15,7 @@ class FirebaseService:
         try:
             if not firebase_admin._apps:
                 cred_path = os.getenv("FIREBASE_SERVICE_ACCOUNT", "service-account.json")
-                if os.path.exists(cred_path) and "your_google_api_key_here" not in open(cred_path).read():
+                if os.path.exists(cred_path) and "your_google_api_key_here" not in open(cred_path).read() and "MOCK_KEY" not in open(cred_path).read():
                     try:
                         cred = credentials.Certificate(cred_path)
                         firebase_admin.initialize_app(cred)

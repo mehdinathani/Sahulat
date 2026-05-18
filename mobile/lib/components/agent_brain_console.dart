@@ -12,12 +12,12 @@ class AgentBrainConsole extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 12, bottom: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A), // Dark slate
+        color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFF334155), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -49,7 +49,7 @@ class AgentBrainConsole extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             'AGENT EXECUTION TRACE',
-            style: GoogleFonts.jetbrainsMono(
+            style: GoogleFonts.sourceCodePro(
               color: const Color(0xFF94A3B8),
               fontSize: 10,
               fontWeight: FontWeight.bold,
@@ -70,7 +70,7 @@ class AgentBrainConsole extends StatelessWidget {
           width: 8,
           height: 8,
           decoration: const BoxDecoration(
-            color: Color(0xFF10B981), // Emerald green
+            color: Color(0xFF10B981),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
@@ -83,7 +83,7 @@ class AgentBrainConsole extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           'SUCCESS',
-          style: GoogleFonts.jetbrainsMono(
+          style: GoogleFonts.sourceCodePro(
             color: const Color(0xFF10B981),
             fontSize: 9,
             fontWeight: FontWeight.bold,
@@ -108,86 +108,84 @@ class AgentBrainConsole extends StatelessWidget {
   }
 
   Widget _buildTraceItem(AgentTrace t, int index, bool isLast) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          _buildTimelineNode(isLast),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '> [STEP] ${t.step}',
-                    style: GoogleFonts.jetbrainsMono(
-                      color: const Color(0xFF38BDF8), // Light blue
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '  Thought: ${t.thought}',
-                    style: GoogleFonts.jetbrainsMono(
-                      color: const Color(0xFFCBD5E1),
-                      fontSize: 11,
-                    ),
-                  ),
-                  if (t.observation != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        '  Observation: ${t.observation}',
-                        style: GoogleFonts.jetbrainsMono(
-                          color: const Color(0xFFF472B6), // Pinkish for observation
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  if (t.action != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        '  Action: ${t.action}()',
-                        style: GoogleFonts.jetbrainsMono(
-                          color: const Color(0xFFFCD34D), // Yellow for action
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                ],
+          // Timeline line (only if not last)
+          if (!isLast)
+            Positioned(
+              top: 12,
+              bottom: -20, // spans the bottom padding to bridge items
+              left: 3, // center line on the 8px dot (8/2 - 2/2 = 3)
+              child: Container(
+                width: 2,
+                color: const Color(0xFF334155),
               ),
+            ),
+          // Timeline dot
+          Positioned(
+            top: 4,
+            left: 0,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: Color(0xFF38BDF8),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          // Content
+          Padding(
+            padding: const EdgeInsets.only(left: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '> [STEP] ${t.step}',
+                  style: GoogleFonts.sourceCodePro(
+                    color: const Color(0xFF38BDF8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '  Thought: ${t.thought}',
+                  style: GoogleFonts.sourceCodePro(
+                    color: const Color(0xFFCBD5E1),
+                    fontSize: 11,
+                  ),
+                ),
+                if (t.observation != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      '  Observation: ${t.observation}',
+                      style: GoogleFonts.sourceCodePro(
+                        color: const Color(0xFFF472B6),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                if (t.action != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      '  Action: ${t.action}()',
+                      style: GoogleFonts.sourceCodePro(
+                        color: const Color(0xFFFCD34D),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTimelineNode(bool isLast) {
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.only(top: 4),
-          width: 8,
-          height: 8,
-          decoration: const BoxDecoration(
-            color: Color(0xFF38BDF8),
-            shape: BoxShape.circle,
-          ),
-        ),
-        if (!isLast)
-          Expanded(
-            child: Container(
-              width: 2,
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              color: const Color(0xFF334155),
-            ),
-          ),
-      ],
     );
   }
 }

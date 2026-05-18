@@ -1,4 +1,5 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import json
 from dotenv import load_dotenv
@@ -26,12 +27,8 @@ _NLP_SYSTEM_INSTRUCTION = (
 class NLPService:
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_API_KEY")
-        if self.api_key:
-            genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction=_NLP_SYSTEM_INSTRUCTION,
-        )
+        self.client = genai.Client(api_key=self.api_key)
+        self.model_id = "gemini-2.5-flash"  # Using modern model ID
 
         # Initialize the Cloud Natural Language client.
         # It will use GOOGLE_APPLICATION_CREDENTIALS env var or service-account.json.
@@ -46,9 +43,9 @@ class NLPService:
                 if os.path.exists(creds_path):
                     os.environ.setdefault("GOOGLE_APPLICATION_CREDENTIALS", creds_path)
                 self._cloud_nlp_client = language_v1.LanguageServiceClient()
-                print("✅ Google Cloud Natural Language client initialized.")
+                print("Google Cloud Natural Language client initialized.")
             except Exception as e:
-                print(f"⚠️  Cloud NLP client init failed ({e}). Entity extraction will be skipped.")
+                print(f"Cloud NLP client init failed ({e}). Entity extraction will be skipped.")
 
     # ---------------------------------------------------------------------- #
     # Public: Cloud NLP Entity Extraction                                     #
@@ -69,7 +66,7 @@ class NLPService:
         Falls back to an empty list if the Cloud NLP client is unavailable.
         """
         if not self._cloud_nlp_client:
-            print("⚠️  Cloud NLP unavailable — skipping entity extraction.")
+            print("Cloud NLP unavailable - skipping entity extraction.")
             return []
 
         try:
@@ -91,7 +88,7 @@ class NLPService:
                 })
             return entities
         except Exception as e:
-            print(f"⚠️  Cloud NLP analyze_entities failed ({e}). Returning empty list.")
+            print(f"Cloud NLP analyze_entities failed ({e}). Returning empty list.")
             return []
 
     def _enrich_intent_from_entities(
@@ -123,10 +120,37 @@ class NLPService:
     async def extract_intent(self, text: str) -> ExtractedIntent:
         """
         Full intent extraction pipeline:
-          1. Cloud NLP entity extraction (supplementary / enrichment layer)
-          2. Gemini structured JSON extraction (primary)
-          3. Keyword fallback (demo safety net)
+          1. Rule-based conversational/navigational check
+          2. Cloud NLP entity extraction (supplementary / enrichment layer)
+          3. Gemini structured JSON extraction (primary)
+          4. Keyword fallback (demo safety net)
         """
+        text_lower = text.lower()
+
+        # --- Detect non-service conversational queries first ---
+        greetings = {"hi", "hello", "hey", "salam", "assalam", "aoa", "hola", "yo"}
+        if text_lower.strip() in greetings or text_lower.startswith(("hi ", "hello ", "hey ", "salam ")):
+            return ExtractedIntent(
+                service_type="Greeting",
+                location=None,
+                time_preference=None,
+                original_text=text,
+                confidence=0.9,
+                language="en",
+            )
+
+        # Navigation / conversational queries (not service searches)
+        nav_keywords = ["booking", "cancel", "contact", "help", "thank", "status", "track"]
+        if any(kw in text_lower for kw in nav_keywords):
+            return ExtractedIntent(
+                service_type="Conversational",
+                location=None,
+                time_preference=None,
+                original_text=text,
+                confidence=0.8,
+                language="en",
+            )
+
         # Step 1: Cloud NLP entity extraction runs first (non-blocking on failure)
         entities = self.analyze_entities(text)
 
@@ -151,40 +175,35 @@ Return ONLY this JSON structure, nothing else:
 }}"""
 
         try:
-            try:
-                response = self.model.generate_content(
-                    prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        response_mime_type="application/json"
-                    ),
-                )
-                data = json.loads(response.text)
-            except Exception:
-                # Fallback for older SDK versions or JSON parsing edge-cases
-                response = self.model.generate_content(prompt)
-                text_content = response.text
-                start = text_content.find("{")
-                end = text_content.rfind("}") + 1
-                data = json.loads(text_content[start:end])
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=_NLP_SYSTEM_INSTRUCTION,
+                    response_mime_type="application/json",
+                ),
+            )
+            data = json.loads(response.text)
 
             intent = ExtractedIntent(
-                service_type=data.get("service_type", "Unknown"),
+                service_type=data.get("service_type") or "Unknown",
                 location=data.get("location"),
                 time_preference=data.get("time_preference"),
                 original_text=text,
-                confidence=data.get("confidence", 0.0),
-                language=data.get("language", "en"),
+                confidence=data.get("confidence") if data.get("confidence") is not None else 0.0,
+                language=data.get("language") or "en",
             )
 
             # Step 2: Enrich with Cloud NLP entities (fill gaps only)
             return self._enrich_intent_from_entities(intent, entities)
 
         except Exception as e:
-            print(f"⚠️  NLP Service failed ({e}). Using keyword fallback.")
+            print(f"NLP Service failed ({e}). Using keyword fallback.")
             text_lower = text.lower()
 
+            # --- Service keyword matching ---
             service_type = "General Service"
-            location = "Karachi"
+            location = None
 
             if "electrician" in text_lower or "bijli" in text_lower:
                 service_type = "Electrician"
@@ -207,12 +226,14 @@ Return ONLY this JSON structure, nothing else:
                 location = "G-13"
             elif "clifton" in text_lower:
                 location = "Clifton"
+            elif "karachi" in text_lower:
+                location = "Karachi"
 
             # Still try to enrich fallback with Cloud NLP location data
             intent = ExtractedIntent(
                 service_type=service_type,
                 location=location,
-                time_preference="ASAP",
+                time_preference="ASAP" if service_type != "General Service" else None,
                 original_text=text,
                 confidence=0.7,
                 language="en",

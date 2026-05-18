@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/chat_message.dart';
 import '../models/provider.dart';
@@ -7,13 +8,14 @@ import '../models/provider.dart';
 class ApiService {
   final String baseUrl;
 
-  ApiService({this.baseUrl = 'http://localhost:8000'});
+  ApiService({this.baseUrl = 'http://localhost:8080'});
 
   // --------------------------------------------------------------------------
   // Chat: send a text message and receive an agentic response.
   // --------------------------------------------------------------------------
   Future<ChatMessage> sendChatMessage(String content) async {
     final url = Uri.parse('$baseUrl/api/chat');
+    debugPrint('Calling API: $url');
 
     try {
       final response = await http.post(
@@ -79,11 +81,11 @@ class ApiService {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         return (data['transcript'] as String? ?? '').trim();
       } else {
-        print('STT API error: ${response.statusCode} — ${response.body}');
+        debugPrint('STT API error: ${response.statusCode} — ${response.body}');
         return '';
       }
     } catch (e) {
-      print('STT transcription failed: $e');
+      debugPrint('STT transcription failed: $e');
       return '';
     }
   }
@@ -99,7 +101,7 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'provider_id': providerId,
-          if (requestId != null) 'request_id': requestId,
+          'request_id': requestId,
         }),
       );
 

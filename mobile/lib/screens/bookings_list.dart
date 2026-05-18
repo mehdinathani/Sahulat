@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
-import 'package:intl/intl.dart';
+
+/// Lightweight date formatter — avoids the intl package dependency.
+String _formatDate(DateTime dt) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  final h = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+  final m = dt.minute.toString().padLeft(2, '0');
+  final ampm = dt.hour < 12 ? 'AM' : 'PM';
+  return '${months[dt.month - 1]} ${dt.day}, ${dt.year}  $h:$m $ampm';
+}
 
 class BookingsListScreen extends StatefulWidget {
   const BookingsListScreen({super.key});
@@ -120,7 +128,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                           final status = booking['status'] ?? 'UNKNOWN';
                           final dateStr = booking['createdAt'] ?? booking['scheduledTime'];
                           final date = dateStr != null ? DateTime.tryParse(dateStr) : null;
-                          final formattedDate = date != null ? DateFormat('MMM d, y h:mm a').format(date.toLocal()) : 'Unknown date';
+                          final formattedDate = date != null ? _formatDate(date.toLocal()) : 'Unknown date';
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 16),
@@ -147,7 +155,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
-                                          color: _getStatusColor(status, theme.colorScheme).withOpacity(0.1),
+                                          color: _getStatusColor(status, theme.colorScheme).withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(20),
                                           border: Border.all(
                                             color: _getStatusColor(status, theme.colorScheme),
@@ -181,9 +189,9 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: Colors.orange.withOpacity(0.05),
+                                        color: Colors.orange.withValues(alpha: 0.05),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                                        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                                       ),
                                       child: Row(
                                         children: [

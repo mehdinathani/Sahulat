@@ -39,11 +39,14 @@ dependencies:
   flutter_markdown: ^0.7.7+1
   google_fonts: ^8.1.0
   # Voice recording for Speech-to-Text integration
-  record: ^5.2.0
+  record: ^6.2.0
   permission_handler: ^11.4.0
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  flutter_driver:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to

@@ -6,7 +6,7 @@ class SahulatTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF4F46E5), // Indigo
+        seedColor: const Color(0xFF4F46E5),
         brightness: Brightness.light,
       ),
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme),
@@ -21,11 +21,11 @@ class SahulatTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: const Color(0xFF0F172A), // Slate 900
+      scaffoldBackgroundColor: const Color(0xFF0F172A),
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF6366F1), // Indigo 500
+        seedColor: const Color(0xFF6366F1),
         brightness: Brightness.dark,
-        surface: const Color(0xFF1E293B), // Slate 800
+        surface: const Color(0xFF1E293B),
       ),
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
       appBarTheme: const AppBarTheme(
@@ -33,12 +33,12 @@ class SahulatTheme {
         elevation: 0,
         centerTitle: true,
       ),
-      cardTheme: CardTheme(
-        color: const Color(0xFF1E293B).withOpacity(0.7),
+      cardTheme: CardThemeData(
+        color: const Color(0xFF1E293B).withValues(alpha: 0.7),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.white.withOpacity(0.1)),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
       ),
     );

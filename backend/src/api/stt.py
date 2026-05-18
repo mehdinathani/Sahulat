@@ -50,11 +50,11 @@ def _get_stt_client():
             os.environ.setdefault("GOOGLE_APPLICATION_CREDENTIALS", creds_path)
         return speech_v1.SpeechClient()
     except Exception as e:
-        print(f"⚠️  Cloud STT client init failed: {e}")
+        print(f"Cloud STT client init failed: {e}")
         return None
 
 
-@router.post("/stt", response_model=TranscriptResponse)
+@router.post("", response_model=TranscriptResponse)
 async def speech_to_text(audio: UploadFile = File(...)):
     """
     Transcribe an uploaded audio file using Google Cloud Speech-to-Text.
@@ -115,12 +115,12 @@ async def speech_to_text(audio: UploadFile = File(...)):
                     source="cloud_stt",
                 )
         except Exception as e:
-            print(f"⚠️  Cloud STT recognition failed: {e}. Falling back to mock.")
+            print(f"Cloud STT recognition failed: {e}. Falling back to mock.")
 
     # ------------------------------------------------------------------ #
     # Mock fallback (no credentials / API error)                          #
     # ------------------------------------------------------------------ #
-    print("ℹ️  Using mock STT transcript for demo.")
+    print("Using mock STT transcript for demo.")
     mock_transcript = "Mujhe G-13 mein electrician chahiye kal subah tak"
     return TranscriptResponse(
         transcript=mock_transcript,

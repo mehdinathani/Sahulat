@@ -1,4 +1,5 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import json
 from dotenv import load_dotenv
@@ -13,8 +14,8 @@ from fastapi import BackgroundTasks
 
 load_dotenv()
 
-# Load the Antigravity system prompt from the project root
-_PROMPT_PATH = Path(__file__).resolve().parents[5] / "antigravity_prompt.txt"
+# Load the Antigravity system prompt from the backend root
+_PROMPT_PATH = Path(__file__).resolve().parents[2] / "antigravity_prompt.txt"
 
 def _load_system_prompt() -> Optional[str]:
     try:
@@ -27,19 +28,15 @@ def _load_system_prompt() -> Optional[str]:
 class Orchestrator:
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_API_KEY")
-        if self.api_key:
-            genai.configure(api_key=self.api_key)
-
-        system_prompt = _load_system_prompt()
-
-        # Inject the Antigravity prompt as the model's system instruction
-        # so every Gemini call is grounded in the full 5-step agentic workflow.
-        model_kwargs: Dict[str, Any] = {"model_name": "gemini-1.5-flash"}
-        if system_prompt:
-            model_kwargs["system_instruction"] = system_prompt
-
-        self.model = genai.GenerativeModel(**model_kwargs)
-        self._system_prompt_loaded = system_prompt is not None
+        self.client = genai.Client(api_key=self.api_key)
+        self.model_id = "gemini-2.5-flash"
+        self.system_prompt = _load_system_prompt()
+        self._system_prompt_loaded = self.system_prompt is not None
+        self.conversational_instruction = (
+            "You are a warm, helpful customer service assistant for Sahulat-AI. "
+            "Write ONLY the direct conversational response to the user. Do NOT include "
+            "any structural prefixes, JSON, thoughts, or trace formatting."
+        )
 
     def _build_recommendation_prompt(
         self,
@@ -126,12 +123,18 @@ class Orchestrator:
                 "Tell the user the booking is confirmed and a reminder will be sent."
             )
             try:
-                gemini_reply = self.model.generate_content(confirmation_prompt)
+                gemini_reply = self.client.models.generate_content(
+                    model=self.model_id,
+                    contents=confirmation_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=self.conversational_instruction
+                    )
+                )
                 content = gemini_reply.text.strip()
             except Exception as e:
                 print(f"Warning: Gemini confirmation generation failed ({e}). Using fallback.")
                 content = (
-                    f"✅ Your booking with **{provider_name}** is confirmed (ID: `{booking['id']}`). "
+                    f"Your booking with **{provider_name}** is confirmed (ID: `{booking['id']}`). "
                     "A follow-up reminder has been scheduled. Track status in 'My Bookings'."
                 )
 
@@ -180,6 +183,54 @@ class Orchestrator:
             action="nlp_service.analyze_entities",
             observation=f"Entities detected: {entity_summary}",
         ))
+
+        # ------------------------------------------------------------------ #
+        # Early returns for non-service intents                               #
+        # ------------------------------------------------------------------ #
+        if intent.service_type == "Greeting":
+            return ChatResponse(
+                content=(
+                    "Hello! 👋 I'm **Sahulat-AI**, your smart service assistant. "
+                    "Tell me what service you need — like a plumber, electrician, "
+                    "AC repair, or tutor — and I'll find the best providers near you!"
+                ),
+                trace=trace,
+                suggested_actions=["Find a Plumber", "Find an Electrician", "AC Repair", "Find a Tutor"],
+            )
+
+        if intent.service_type == "Conversational":
+            # Build a contextual response based on what the user asked
+            msg_lower = user_message.lower()
+            if "booking" in msg_lower or "status" in msg_lower or "track" in msg_lower:
+                content = (
+                    "You can view and track all your bookings using the 📋 icon in the "
+                    "top-right corner, or tap the button below."
+                )
+                actions = ["View My Bookings"]
+            elif "cancel" in msg_lower:
+                content = "Booking cancellation support is coming soon. For now, you can view your active bookings."
+                actions = ["View My Bookings"]
+            elif "contact" in msg_lower:
+                content = "Provider contact details are shown on each booking card. Check your bookings to find them."
+                actions = ["View My Bookings"]
+            elif "help" in msg_lower:
+                content = (
+                    "I can help you find and book local service providers! "
+                    "Just tell me what you need — e.g. 'I need a plumber in DHA'."
+                )
+                actions = ["Find a Plumber", "Find an Electrician", "AC Repair"]
+            elif "thank" in msg_lower:
+                content = "You're welcome! 😊 Let me know if you need anything else."
+                actions = ["Find a service", "View My Bookings"]
+            else:
+                content = "I'm here to help you find services. What do you need?"
+                actions = ["Find a Plumber", "Find an Electrician", "AC Repair"]
+
+            return ChatResponse(
+                content=content,
+                trace=trace,
+                suggested_actions=actions,
+            )
 
         # ------------------------------------------------------------------ #
         # STEP 2 — Provider Discovery                                         #
@@ -239,7 +290,13 @@ class Orchestrator:
         )
 
         try:
-            gemini_reply = self.model.generate_content(rec_prompt)
+            gemini_reply = self.client.models.generate_content(
+                model=self.model_id,
+                contents=rec_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=self.conversational_instruction
+                )
+            )
             response_content = gemini_reply.text.strip()
         except Exception as e:
             print(f"Warning: Gemini recommendation generation failed ({e}). Using fallback.")
