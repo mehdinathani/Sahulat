@@ -8,7 +8,7 @@ import '../models/provider.dart';
 class ApiService {
   final String baseUrl;
 
-  ApiService({this.baseUrl = 'http://localhost:8080'});
+  ApiService({this.baseUrl = 'https://sahulat-backend-118267129512.us-central1.run.app'});
 
   // --------------------------------------------------------------------------
   // Chat: send a text message and receive an agentic response.
@@ -65,7 +65,7 @@ class ApiService {
   //
   // Returns an empty string on any error so the UI can degrade gracefully.
   // --------------------------------------------------------------------------
-  Future<String> transcribeAudio(File audioFile) async {
+  Future<String> transcribeAudio(File audioFile, {String? languageCode, String? preset}) async {
     final url = Uri.parse('$baseUrl/api/stt');
 
     try {
@@ -73,6 +73,13 @@ class ApiService {
       request.files.add(
         await http.MultipartFile.fromPath('audio', audioFile.path),
       );
+
+      if (languageCode != null) {
+        request.fields['language_code'] = languageCode;
+      }
+      if (preset != null) {
+        request.fields['preset'] = preset;
+      }
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);

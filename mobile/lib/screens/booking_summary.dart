@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../models/provider.dart';
 import '../services/api_service.dart';
 
@@ -48,10 +47,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Booking Summary',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Booking Summary'),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -65,39 +61,35 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             children: [
               Text(
                 'Service Details',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
+                style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 24),
-              _buildDetailRow('Provider', widget.provider.name),
+              _buildDetailRow(context, 'Provider', widget.provider.name),
               const Divider(height: 32),
-              _buildDetailRow('Service', widget.provider.serviceType),
+              _buildDetailRow(context, 'Service', widget.provider.serviceType),
               const Divider(height: 32),
-              _buildDetailRow('Rate', 'Rs. ${widget.provider.pricePerHour}/hr'),
+              _buildDetailRow(context, 'Rate', 'Rs. ${widget.provider.pricePerHour}/hr'),
               const Divider(height: 32),
-              _buildDetailRow('Distance', '${widget.provider.distance} km away'),
+              _buildDetailRow(context, 'Distance', '${widget.provider.distance} km away'),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _confirmBooking,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
                   child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
                       : Text(
                           'Confirm Booking',
-                          style: GoogleFonts.outfit(
-                            fontSize: 18,
+                          style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                 ),
@@ -109,7 +101,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -117,13 +110,12 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           label,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey.shade600,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         Text(
           value,
-          style: GoogleFonts.outfit(
-            fontSize: 16,
+          style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),

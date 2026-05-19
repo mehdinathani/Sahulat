@@ -5,9 +5,8 @@ __pycache__/
 .Python
 env/
 venv/
-.env
+test_venv/
 .git
 .gitignore
 mock_db.json
 backend.log
-service-account.json

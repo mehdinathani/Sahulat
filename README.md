@@ -22,6 +22,18 @@ At the heart of Sahulat-AI is the `Orchestrator`, built to demonstrate true agen
 
 Crucially, every step of this process generates **Agentic Traces** (thought, action, observation). These traces are streamed to the Flutter frontend and displayed in the "Agent Brain Console", providing total transparency into how the AI plans and executes its tasks.
 
+## Production Setup & Firebase Integration
+While Sahulat-AI uses a `MockFirestoreClient` for local development, you can connect it to a real Google Cloud/Firebase environment for production.
+To resolve the "Default credentials not found" warning during initialization:
+
+1. **Service Account JSON**: Download your Firebase Admin SDK service account key.
+2. **Environment Variable**: Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to your JSON key, or explicitly set it in your `.env` file via `FIREBASE_SERVICE_ACCOUNT`.
+3. **Google ADC**: If deploying to Google Cloud (Cloud Run, Compute Engine), use Application Default Credentials (ADC) by running:
+   ```bash
+   gcloud auth application-default login
+   ```
+   This ensures secure and automatic authentication without hardcoding keys.
+
 ## Tools & APIs Used
 - **Google Gemini 1.5 Flash (via `google-generativeai`)**: Powers the `NLPService` for fast, accurate intent extraction and handles multilingual inputs gracefully.
 - **FastAPI BackgroundTasks**: Used to simulate real-world asynchronous operations, such as delayed SMS follow-up reminders.

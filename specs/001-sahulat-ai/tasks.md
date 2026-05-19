@@ -160,3 +160,13 @@
 - [x] T036 [P] Add `transcribeAudio(File)` method to `mobile/lib/services/api_service.dart` for multipart audio upload
 - [x] T037 [P] Add `record: ^5.2.0` and `permission_handler: ^11.4.0` packages to `mobile/pubspec.yaml`
 
+---
+
+## Phase 9: User Story 5 - Automatic Location & Nearby Services On Startup (Priority: P1)
+
+**Purpose**: Fetch the user's location automatically on startup and plot nearby service providers clustered around their resolved neighborhood to demonstrate immediate value.
+
+- [x] T038 [US5] Implement `getClosestNeighborhood` and Haversine distance logic in `mobile/lib/models/provider.dart`
+- [x] T039 [US5] Implement `fetchLocationAndLoadNearbyServices` in `mobile/lib/providers/chat_provider.dart` to orchestrate location and generate mock nearby providers
+- [x] T040 [P] [US5] Update `mobile/lib/screens/chat_screen.dart` to trigger `fetchLocationAndLoadNearbyServices` inside `initState()` using `addPostFrameCallback`
+

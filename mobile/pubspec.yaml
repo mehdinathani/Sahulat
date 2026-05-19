@@ -42,6 +42,11 @@ dependencies:
   record: ^6.2.0
   permission_handler: ^11.4.0
   path: ^1.9.1
+  # Google Maps & Location
+  google_maps_flutter: ^2.9.0
+  geolocator: ^13.0.2
+  geocoding: ^3.0.0
+  flutter_polyline_points: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +71,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Map style assets
+  assets:
+    - assets/map_style_dark.json
+    - assets/map_style_light.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

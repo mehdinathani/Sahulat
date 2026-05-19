@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io' show Platform;
 import 'package:provider/provider.dart';
 import 'screens/chat_screen.dart';
 import 'providers/chat_provider.dart';
+import 'providers/settings_provider.dart';
 import 'theme.dart';
 
 String _getBackendUrl() {
+  // Production Cloud Run Backend
+  return 'https://sahulat-backend-118267129512.us-central1.run.app';
+
+  // Local development fallback
+  /*
   if (kIsWeb) {
     return 'http://localhost:8080';
   }
@@ -16,12 +20,16 @@ String _getBackendUrl() {
     }
   } catch (_) {}
   return 'http://localhost:8080'; // Fallback for Windows desktop and iOS
+  */
 }
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => SettingsProvider(),
+        ),
         ChangeNotifierProvider(
           create: (_) => ChatProvider(
             baseUrl: _getBackendUrl(),
@@ -38,12 +46,14 @@ class SahulatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+
     return MaterialApp(
       title: 'Sahulat-AI',
       debugShowCheckedModeBanner: false,
       theme: SahulatTheme.lightTheme,
       darkTheme: SahulatTheme.darkTheme,
-      themeMode: ThemeMode.dark, // Default to dark theme for the premium AI look
+      themeMode: settings.themeMode,
       home: const ChatScreen(),
     );
   }

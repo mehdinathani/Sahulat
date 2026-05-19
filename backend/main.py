@@ -7,9 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
 from dotenv import load_dotenv
-from src.api.routes import router as api_router
-
 load_dotenv()
+
+from src.api.routes import router as api_router
 
 app = FastAPI(
     title="Sahulat-AI Orchestrator",
@@ -32,6 +32,16 @@ app.include_router(api_router, prefix="/api")
 @app.get("/")
 async def root():
     return {"message": "Sahulat-AI Orchestrator API is running"}
+
+@app.post("/seed")
+async def seed_database():
+    """Seed the Firestore database with mock providers (one-time use)."""
+    try:
+        from scripts.seed_providers import seed_providers
+        seed_providers()
+        return {"status": "success", "message": "Database seeded with demo providers"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))

@@ -16,7 +16,8 @@ Design notes:
 
 import os
 import tempfile
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from typing import Optional
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from pydantic import BaseModel
 
 # Google Cloud Speech-to-Text
@@ -55,7 +56,11 @@ def _get_stt_client():
 
 
 @router.post("", response_model=TranscriptResponse)
-async def speech_to_text(audio: UploadFile = File(...)):
+async def speech_to_text(
+    audio: UploadFile = File(...),
+    language_code: Optional[str] = Form(None),
+    preset: Optional[str] = Form(None),
+):
     """
     Transcribe an uploaded audio file using Google Cloud Speech-to-Text.
 
@@ -88,12 +93,22 @@ async def speech_to_text(audio: UploadFile = File(...)):
                 # Default to LINEAR16 WAV
                 encoding = speech_v1.RecognitionConfig.AudioEncoding.LINEAR16
 
+            # Determine language configuration
+            target_lang = "en-US"
+            alt_langs = ["ur-PK"]
+            if language_code == "en-US":
+                target_lang = "en-US"
+                alt_langs = []
+            elif language_code == "ur-PK":
+                target_lang = "ur-PK"
+                alt_langs = []
+
             config = speech_v1.RecognitionConfig(
                 encoding=encoding,
                 sample_rate_hertz=16000,
-                # Support English + Urdu for our multilingual users
-                language_code="en-US",
-                alternative_language_codes=["ur-PK"],
+                # Support selected constraints or English + Urdu bilingual detection
+                language_code=target_lang,
+                alternative_language_codes=alt_langs,
                 enable_automatic_punctuation=True,
             )
             audio_obj = speech_v1.RecognitionAudio(content=audio_bytes)
@@ -104,14 +119,14 @@ async def speech_to_text(audio: UploadFile = File(...)):
                 return TranscriptResponse(
                     transcript=best.transcript,
                     confidence=round(best.confidence, 3),
-                    language="en-US",
+                    language=target_lang,
                     source="cloud_stt",
                 )
             else:
                 return TranscriptResponse(
                     transcript="",
                     confidence=0.0,
-                    language="en-US",
+                    language=target_lang,
                     source="cloud_stt",
                 )
         except Exception as e:
@@ -120,11 +135,39 @@ async def speech_to_text(audio: UploadFile = File(...)):
     # ------------------------------------------------------------------ #
     # Mock fallback (no credentials / API error)                          #
     # ------------------------------------------------------------------ #
-    print("Using mock STT transcript for demo.")
-    mock_transcript = "Mujhe G-13 mein electrician chahiye kal subah tak"
+    print(f"Using mock STT transcript for demo. Language Code: {language_code}, Preset: {preset}")
+    
+    # Nested mapping structures for languages and presets
+    presets_map = {
+        "en-US": {
+            "electrician": "I need a certified electrician to fix my living room wiring tomorrow morning.",
+            "ac": "Can you book an AC repair technician? My air conditioner is not cooling properly.",
+            "plumber": "Please find me a plumber to fix a water leakage in my kitchen pipeline.",
+            "tutor": "I am looking for a physics home tutor for my 10th grade student in F-11."
+        },
+        "ur-PK": {
+            "electrician": "مجھے اپنے گھر کے شارٹ سرکٹ کے لیے ایک الیکٹریشن کی ضرورت ہے۔",
+            "ac": "براہ کرم اے سی سروس کے لیے کسی اچھے ٹیکنیشن کو بھیجیں۔",
+            "plumber": "باھر کچن کے نلکے سے پانی ٹپک رہا ہے، کسی پلمبر کو بھیج دیں۔",
+            "tutor": "مجھے دسویں جماعت کے بچے کو ریاضی پڑھانے کے لیے ہوم ٹیوٹر چاہیے۔"
+        },
+        "auto": {
+            "electrician": "Mujhe G-13 mein electrician chahiye kal subah tak",
+            "ac": "Mera AC thandi hawa nahi de raha, check karwane ke liye technician chahiye",
+            "plumber": "Kitchen ka pipe leak ho raha hai, emergency plumber chahiye",
+            "tutor": "Bachon ko math aur science parhane ke liye home tutor ki talaash hai"
+        }
+    }
+
+    # Match language_code safely
+    lang = language_code if language_code in presets_map else "auto"
+    preset_key = preset if preset in presets_map[lang] else "electrician"
+    
+    mock_transcript = presets_map[lang][preset_key]
+    
     return TranscriptResponse(
         transcript=mock_transcript,
         confidence=0.95,
-        language="roman_ur",
+        language=lang,
         source="mock",
     )

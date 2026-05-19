@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from ..services.firebase_service import firebase_service
 from ..models.schemas import Booking
 
@@ -31,7 +31,7 @@ from ..services.booking_service import booking_service
 
 class BookingConfirmRequest(BaseModel):
     provider_id: str
-    request_id: str = None
+    request_id: Optional[str] = None
 
 @router.post("/confirm")
 async def confirm_booking(request: BookingConfirmRequest):

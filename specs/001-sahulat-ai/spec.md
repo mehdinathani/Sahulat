@@ -71,6 +71,21 @@ As a user, I want the system to keep me updated and remind me of my appointment 
 - **Ambiguous Location**: How does the system handle "Islamabad" instead of a specific sector like "G-13"?
 - **Offline Mode**: How does the system handle network failures during the agentic workflow?
 
+---
+
+### User Story 5 - Automatic Location & Nearby Services (Priority: P1)
+
+As a user, I want the app to automatically detect my location on startup and show me nearby service providers, so that I immediately see value and relevant services without having to type anything.
+
+**Why this priority**: Reduces friction for new users and demonstrates the immediate capability of finding nearby help.
+
+**Independent Test**: Can be tested by opening the app with a fresh chat history and verifying that a welcome message with a horizontal list of 4 clustered nearby providers appears automatically.
+
+**Acceptance Scenarios**:
+
+1. **Given** the app is started with an empty chat, **When** the home screen loads, **Then** location permissions are requested, coordinates are mapped to a known neighborhood, and a welcome message appears with 4 nearby service providers plotted around that neighborhood.
+
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -83,6 +98,10 @@ As a user, I want the system to keep me updated and remind me of my appointment 
 - **FR-006**: Simulate booking lifecycle: Assignment -> Confirmation -> Scheduling.
 - **FR-007**: Automate follow-up interactions (reminders, status checks).
 - **FR-008**: Log all agent reasoning steps and tool usage for audit/demo purposes.
+- **FR-009**: Implement dynamic Light and Dark theme toggling on the mobile frontend with local configuration state.
+- **FR-010**: Provide a Voice Settings configuration panel for choosing transcription language constraints (Auto, English, Urdu) and voice presets (AC, Plumber, Electrician, Tutor) for simulation/demonstration.
+- **FR-011**: Backend STT API must parse optional language codes and simulation preset parameters from the request payload.
+- **FR-012**: Ensure backend mock fallback supports preset translation return values corresponding to the selected frontend preset parameter.
 
 ### Key Entities
 
@@ -90,6 +109,7 @@ As a user, I want the system to keep me updated and remind me of my appointment 
 - **Provider**: Represents the service professional (ID, Category, Location, Rating, Availability).
 - **Service Request**: Represents the intent (UserID, ServiceType, Location, PreferredTime).
 - **Booking**: Represents the confirmed transaction (ID, RequestID, ProviderID, ScheduledTime, Status).
+- **Settings**: Represents user UI/voice configurations (ThemeMode, LanguageCode, SelectedPreset).
 
 ## Success Criteria *(mandatory)*
 
@@ -100,3 +120,5 @@ As a user, I want the system to keep me updated and remind me of my appointment 
 - **SC-003**: System response time for recommendation is under 5 seconds (orchestration overhead).
 - **SC-004**: 100% of recommendations include a valid "Reasoning" field explaining the choice.
 - **SC-005**: Visible trace/logs of agent decisions available for the demo.
+- **SC-006**: Theme toggle correctly switches between Light and Dark visual system modes without resetting the current chat session.
+- **SC-007**: Selecting a voice simulation preset transcribes correctly on the backend and initiates the corresponding service orchestrator flow.

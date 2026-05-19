@@ -11,6 +11,12 @@ class FirebaseService:
         self.db = self._initialize_firebase()
 
     def _initialize_firebase(self):
+        # Allow forcing Mock DB via env var
+        if os.getenv("USE_MOCK_DB", "").lower() in ("true", "1"):
+            print("Forcing Local Mock DB via USE_MOCK_DB environment variable.")
+            self.use_mock = True
+            return MockFirestoreClient()
+
         # Check if already initialized
         try:
             if not firebase_admin._apps:
@@ -21,41 +27,81 @@ class FirebaseService:
                         firebase_admin.initialize_app(cred)
                     except Exception as e:
                         print(f"Warning: Failed to load service account: {e}. Falling back to default.")
-                        firebase_admin.initialize_app()
+                        try:
+                            firebase_admin.initialize_app()
+                        except Exception as e2:
+                            print(f"Warning: Default init also failed: {e2}. Using Mock DB.")
+                            self.use_mock = True
+                            return MockFirestoreClient()
                 else:
-                    # Fallback for mock environment if file doesn't exist or is default
-                    firebase_admin.initialize_app()
-            return firestore.client()
+                    # On Cloud Run, use Application Default Credentials
+                    try:
+                        firebase_admin.initialize_app()
+                    except Exception as e:
+                        print(f"Warning: firebase_admin.initialize_app() failed: {e}. Using Mock DB.")
+                        self.use_mock = True
+                        return MockFirestoreClient()
+            # Try creating the Firestore client — this can fail if DB doesn't exist
+            try:
+                client = firestore.client()
+                self.use_mock = False
+                print("Firestore client initialized successfully.")
+                return client
+            except Exception as e:
+                print(f"Warning: firestore.client() failed: {e}. Using Local Mock DB.")
+                self.use_mock = True
+                return MockFirestoreClient()
         except Exception as e:
             print(f"Critical: Firebase initialization failed: {e}. Using Local Mock DB.")
+            self.use_mock = True
             return MockFirestoreClient()
 
+    def _execute_with_fallback(self, func):
+        try:
+            return func(self.db)
+        except Exception as e:
+            if not self.use_mock:
+                print(f"Warning: Firestore operation failed ({e}). Falling back to Local Mock DB.")
+                self.use_mock = True
+                self.db = MockFirestoreClient()
+                return func(self.db)
+            raise e
+
     def get_document(self, collection: str, document_id: str) -> Optional[Dict[str, Any]]:
-        doc_ref = self.db.collection(collection).document(document_id)
-        doc = doc_ref.get()
-        return doc.to_dict() if doc.exists else None
+        def _op(db):
+            doc_ref = db.collection(collection).document(document_id)
+            doc = doc_ref.get()
+            return doc.to_dict() if doc.exists else None
+        return self._execute_with_fallback(_op)
 
     def add_document(self, collection: str, data: Dict[str, Any], document_id: Optional[str] = None) -> str:
-        if document_id:
-            self.db.collection(collection).document(document_id).set(data)
-            return document_id
-        else:
-            _, doc_ref = self.db.collection(collection).add(data)
-            return doc_ref.id
+        def _op(db):
+            if document_id:
+                db.collection(collection).document(document_id).set(data)
+                return document_id
+            else:
+                _, doc_ref = db.collection(collection).add(data)
+                return doc_ref.id
+        return self._execute_with_fallback(_op)
 
     def update_document(self, collection: str, document_id: str, data: Dict[str, Any]):
-        self.db.collection(collection).document(document_id).update(data)
+        def _op(db):
+            db.collection(collection).document(document_id).update(data)
+        self._execute_with_fallback(_op)
 
     def query_collection(self, collection: str, filters: List[tuple]) -> List[Dict[str, Any]]:
-        query = self.db.collection(collection)
-        for field, op, value in filters:
-            query = query.where(field, op, value)
-        
-        docs = query.stream()
-        return [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        def _op(db):
+            query = db.collection(collection)
+            for field, op, value in filters:
+                query = query.where(field, op, value)
+            docs = query.stream()
+            return [{"id": doc.id, **doc.to_dict()} for doc in docs]
+        return self._execute_with_fallback(_op)
 
     def delete_document(self, collection: str, document_id: str):
-        self.db.collection(collection).document(document_id).delete()
+        def _op(db):
+            db.collection(collection).document(document_id).delete()
+        self._execute_with_fallback(_op)
 
 import json
 

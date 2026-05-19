@@ -3,7 +3,7 @@ uvicorn
 firebase-admin
 python-dotenv
 pydantic
-google-generativeai
+google-genai
 google-cloud-language
 google-cloud-speech
 python-multipart

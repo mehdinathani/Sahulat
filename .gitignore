@@ -1,0 +1,37 @@
+# User/System specific
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+*.log
+.vscode/
+.idea/
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+test_venv/
+dist/
+*.egg-info/
+dummy.wav
+
+# Flutter/Dart specific
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+ephemeral/
+*.flutter-plugins
+*.flutter-plugins-dependencies
+
+# Local credentials / environment
+.env
+service-account.json
+
+# Agents tools and skills
+.agents/

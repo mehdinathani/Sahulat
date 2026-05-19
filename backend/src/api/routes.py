@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from ..models.schemas import ChatMessage, ChatResponse, Booking
+from ..models.schemas import ChatMessage, ChatResponse
 from ..services.orchestrator import orchestrator
 from typing import List
 
@@ -19,10 +19,3 @@ async def get_providers(category: str = None):
     # This will be implemented in Phase 4
     return {"providers": []}
 
-@router.post("/booking/confirm")
-async def confirm_booking(booking: Booking):
-    """
-    Confirm a simulated booking.
-    """
-    # This will be implemented in Phase 5
-    return {"status": "CONFIRMED", "booking_id": booking.id}

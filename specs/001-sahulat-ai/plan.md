@@ -7,6 +7,8 @@
 
 Build an Agentic AI system ("Sahulat-AI") that automates the end-to-end lifecycle of service requests in the informal economy. The system will use Google Antigravity for orchestration, FastAPI for the backend service, Firebase for mock data and state management, and Flutter for the mobile interface.
 
+The mobile app will automatically fetch the user's location on startup (with graceful fallbacks) to suggest nearby mock providers clustered around their resolved neighborhood.
+
 ## Technical Context
 
 **Language/Version**: Python 3.10+ (FastAPI), Dart/Flutter (Latest)  

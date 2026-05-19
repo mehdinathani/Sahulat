@@ -21,7 +21,7 @@ class MatchingService:
         ]
         
         # Sort by rating (desc) and then distance (asc)
-        matches.sort(key=lambda x: (-x.get("rating", 0), x.get("distance", 999)))
+        matches.sort(key=lambda x: (-x.get("rating", 0), x.get("distance_km", 999)))
         
         return matches[:limit]
 
@@ -31,7 +31,7 @@ class MatchingService:
         """
         name = provider.get("name")
         rating = provider.get("rating")
-        dist = provider.get("distance")
+        dist = provider.get("distance_km")
         
         reasons = [
             f"{name} is highly rated ({rating}/5.0).",

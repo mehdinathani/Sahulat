@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../theme.dart';
 
 /// Lightweight date formatter — avoids the intl package dependency.
 String _formatDate(DateTime dt) {
@@ -61,12 +61,12 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
         return colorScheme.primary;
       case 'REMINDED':
       case 'ON_THE_WAY':
-        return Colors.orange;
+        return SahulatTheme.warningColor;
       case 'COMPLETED':
       case 'DONE':
-        return Colors.green;
+        return SahulatTheme.successColor;
       default:
-        return Colors.grey;
+        return SahulatTheme.darkTextSecondary;
     }
   }
 
@@ -76,10 +76,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'My Bookings',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('My Bookings'),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -114,7 +111,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                   ? Center(
                       child: Text(
                         'No bookings found.',
-                        style: GoogleFonts.outfit(fontSize: 18, color: Colors.grey),
+                        style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey),
                       ),
                     )
                   : RefreshIndicator(
@@ -132,8 +129,6 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 16),
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
                               child: Column(
@@ -145,8 +140,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                       Expanded(
                                         child: Text(
                                           providerId,
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 18,
+                                          style: theme.textTheme.titleMedium?.copyWith(
                                             fontWeight: FontWeight.bold,
                                           ),
                                           overflow: TextOverflow.ellipsis,
@@ -164,8 +158,7 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                         ),
                                         child: Text(
                                           status,
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 12,
+                                          style: theme.textTheme.labelSmall?.copyWith(
                                             fontWeight: FontWeight.bold,
                                             color: _getStatusColor(status, theme.colorScheme),
                                           ),
@@ -176,11 +169,11 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade600),
+                                      Icon(Icons.calendar_today, size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                                       const SizedBox(width: 4),
                                       Text(
                                         formattedDate,
-                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                                        style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14),
                                       ),
                                     ],
                                   ),
@@ -189,18 +182,18 @@ class _BookingsListScreenState extends State<BookingsListScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: Colors.orange.withValues(alpha: 0.05),
+                                        color: SahulatTheme.warningColor.withValues(alpha: 0.05),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                                        border: Border.all(color: SahulatTheme.warningColor.withValues(alpha: 0.3)),
                                       ),
                                       child: Row(
                                         children: [
-                                          const Icon(Icons.notifications_active, color: Colors.orange, size: 16),
+                                          const Icon(Icons.notifications_active, color: SahulatTheme.warningColor, size: 16),
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
                                               booking['latest_notification'],
-                                              style: const TextStyle(fontSize: 13, color: Colors.orange),
+                                              style: const TextStyle(fontSize: 13, color: SahulatTheme.warningColor),
                                             ),
                                           ),
                                         ],
