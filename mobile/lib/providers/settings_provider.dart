@@ -4,10 +4,12 @@ class SettingsProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.dark; // Default to dark for premium look
   String _languageCode = 'auto'; // 'auto', 'en-US', 'ur-PK'
   String _voicePreset = 'electrician'; // 'electrician', 'ac', 'plumber', 'tutor'
+  bool _showAgentReasoning = false; // Default to false so reasoning traces are hidden for clean prod look
 
   ThemeMode get themeMode => _themeMode;
   String get languageCode => _languageCode;
   String get voicePreset => _voicePreset;
+  bool get showAgentReasoning => _showAgentReasoning;
 
   bool get isDarkMode => _themeMode == ThemeMode.dark;
 
@@ -28,6 +30,11 @@ class SettingsProvider with ChangeNotifier {
 
   void setVoicePreset(String preset) {
     _voicePreset = preset;
+    notifyListeners();
+  }
+
+  void setShowAgentReasoning(bool value) {
+    _showAgentReasoning = value;
     notifyListeners();
   }
 }

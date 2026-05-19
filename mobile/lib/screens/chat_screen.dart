@@ -308,6 +308,47 @@ class _ChatScreenState extends State<ChatScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    
+                    // Agent Reasoning Logs setting
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.psychology,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Agent Reasoning Logs',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  'Show multi-step execution logs',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Switch(
+                          value: settings.showAgentReasoning,
+                          activeThumbColor: theme.colorScheme.primary,
+                          onChanged: (bool value) {
+                            settings.setShowAgentReasoning(value);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                     const Divider(),
                     const SizedBox(height: 16),
                     
@@ -534,7 +575,10 @@ class _MessageBubble extends StatelessWidget {
               ],
             ),
           ),
-          if (!isUser && message.trace != null && message.trace!.isNotEmpty)
+          if (!isUser &&
+              message.trace != null &&
+              message.trace!.isNotEmpty &&
+              context.watch<SettingsProvider>().showAgentReasoning)
             _ReasoningPanel(trace: message.trace!),
           if (!isUser && message.providers != null && message.providers!.isNotEmpty) ...[  
             // 'View All on Map' button
