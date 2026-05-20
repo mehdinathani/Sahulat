@@ -66,9 +66,9 @@ class _ChatScreenState extends State<ChatScreen> {
         if (await _audioRecorder.hasPermission()) {
           // Use temporary directory for recording
           final tempDir = Directory.systemTemp;
-          final path = p.join(tempDir.path, 'recording_${DateTime.now().millisecondsSinceEpoch}.m4a');
+          final path = p.join(tempDir.path, 'recording_${DateTime.now().millisecondsSinceEpoch}.wav');
           
-          const config = RecordConfig(); // Default config
+          const config = RecordConfig(encoder: AudioEncoder.wav); // Use WAV config for backend compatibility
           await _audioRecorder.start(config, path: path);
           provider.setListening(true);
         } else {

@@ -116,24 +116,21 @@ async def speech_to_text(
 
             if response.results:
                 best = response.results[0].alternatives[0]
-                return TranscriptResponse(
-                    transcript=best.transcript,
-                    confidence=round(best.confidence, 3),
-                    language=target_lang,
-                    source="cloud_stt",
-                )
-            else:
-                return TranscriptResponse(
-                    transcript="",
-                    confidence=0.0,
-                    language=target_lang,
-                    source="cloud_stt",
-                )
+                if best.transcript.strip():
+                    return TranscriptResponse(
+                        transcript=best.transcript,
+                        confidence=round(best.confidence, 3),
+                        language=target_lang,
+                        source="cloud_stt",
+                    )
+
+            # If we got no results (silent audio), fall through to mock logic
+            print("Cloud STT returned no results (silent audio?), falling back to mock.")
         except Exception as e:
             print(f"Cloud STT recognition failed: {e}. Falling back to mock.")
 
     # ------------------------------------------------------------------ #
-    # Mock fallback (no credentials / API error)                          #
+    # Mock fallback (no credentials / API error / silent audio)           #
     # ------------------------------------------------------------------ #
     print(f"Using mock STT transcript for demo. Language Code: {language_code}, Preset: {preset}")
     

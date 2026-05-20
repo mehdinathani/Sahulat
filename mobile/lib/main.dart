@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'screens/chat_screen.dart';
 import 'providers/chat_provider.dart';
 import 'providers/settings_provider.dart';
@@ -24,6 +25,17 @@ String _getBackendUrl() {
 }
 
 void main() {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Trace Logging
+  debugPrint('[UI State: Agentic System Initializing...]');
+
+  // Simulate Agentic Brain Initialization
+  Future.delayed(const Duration(milliseconds: 2500), () {
+    FlutterNativeSplash.remove();
+  });
+
   runApp(
     MultiProvider(
       providers: [

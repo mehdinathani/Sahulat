@@ -170,3 +170,21 @@
 - [x] T039 [US5] Implement `fetchLocationAndLoadNearbyServices` in `mobile/lib/providers/chat_provider.dart` to orchestrate location and generate mock nearby providers
 - [x] T040 [P] [US5] Update `mobile/lib/screens/chat_screen.dart` to trigger `fetchLocationAndLoadNearbyServices` inside `initState()` using `addPostFrameCallback`
 
+---
+
+## Phase 10: Splash Screen & UX Polish (Priority: P1)
+
+**Purpose**: Implement a professional, premium splash screen with "System Initializing" effect that matches our Dark Tech Theme.
+
+- [x] T041 [P] Implement Native Splash Screen with 2.5s delay and initialization tracing in `mobile/lib/main.dart`
+
+---
+
+## Phase 11: Robust Speech-to-Text Preset Simulation & Verification
+
+**Purpose**: Fix STT simulation preset bypass where empty/silent audio returns empty strings. Add preset fallback logic and perform deep live tests.
+
+- [ ] T042 [US1] Fix live STT empty transcription preset bypass in `backend/src/api/stt.py`
+
+
+

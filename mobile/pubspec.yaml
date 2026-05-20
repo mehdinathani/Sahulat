@@ -47,6 +47,7 @@ dependencies:
   geolocator: ^13.0.2
   geocoding: ^3.0.0
   flutter_polyline_points: ^2.1.0
+  flutter_native_splash: ^2.4.0
 
 dev_dependencies:
   flutter_test:
