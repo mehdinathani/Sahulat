@@ -8,7 +8,8 @@ import uvicorn
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
+# Add src package to path for local imports
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from src.api.routes import router as api_router
 
 app = FastAPI(

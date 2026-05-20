@@ -1,0 +1,28 @@
+{
+  "bookings": {
+    "bd8c9991-ca07-4ffa-93d6-184eccb2c2c2": {
+      "id": "bd8c9991-ca07-4ffa-93d6-184eccb2c2c2",
+      "requestId": "manual",
+      "providerId": "Arshad Electrics",
+      "providerName": "Arshad Electrics",
+      "scheduledTime": "2026-05-20T19:16:13.504894",
+      "scheduledLabel": "Wed 20 May, 07:16 PM UTC",
+      "timePreference": null,
+      "status": "BOOKED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-20T18:16:13.504951"
+    },
+    "8bff22ef-7673-4ba1-b7b1-41105949e058": {
+      "id": "8bff22ef-7673-4ba1-b7b1-41105949e058",
+      "requestId": "manual",
+      "providerId": "Arshad Electrics",
+      "providerName": "Arshad Electrics",
+      "scheduledTime": "2026-05-20T19:16:48.963910",
+      "scheduledLabel": "Wed 20 May, 07:16 PM UTC",
+      "timePreference": null,
+      "status": "BOOKED",
+      "reasoning": "User selected the recommended provider.",
+      "createdAt": "2026-05-20T18:16:48.963995"
+    }
+  }
+}

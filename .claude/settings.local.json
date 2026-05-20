@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(start cmd *)"
+      "Bash(start cmd *)",
+      "Bash(git *)"
     ]
   }
 }

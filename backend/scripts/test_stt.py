@@ -3,10 +3,10 @@ import os
 import json
 from fastapi.testclient import TestClient
 
-# Add src to path
-sys.path.append(os.getcwd())
+# Add project root to path for backend import
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from main import app
+from backend.main import app
 
 client = TestClient(app)
 

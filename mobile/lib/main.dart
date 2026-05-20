@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'screens/chat_screen.dart';
+import 'screens/splash_screen.dart';
 import 'providers/chat_provider.dart';
 import 'providers/settings_provider.dart';
 import 'theme.dart';
 
 String _getBackendUrl() {
   // Production Cloud Run Backend
-  return 'https://sahulat-backend-118267129512.us-central1.run.app';
+  return 'https://sahulat-ai-backend-823935698067.us-central1.run.app';
 
   // Local development fallback
   /*
@@ -66,7 +67,26 @@ class SahulatApp extends StatelessWidget {
       theme: SahulatTheme.lightTheme,
       darkTheme: SahulatTheme.darkTheme,
       themeMode: settings.themeMode,
-      home: const ChatScreen(),
+      locale: settings.locale,
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('ur', 'PK'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      // Force the whole app to flip layout direction when Urdu is selected.
+      // Wrapping in Directionality ensures even widgets that don't read Locale
+      // (custom painters, manually-laid-out rows) get the right reading order.
+      builder: (context, child) {
+        return Directionality(
+          textDirection: settings.textDirection,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+      home: const SplashScreen(),
     );
   }
 }

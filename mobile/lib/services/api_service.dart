@@ -8,7 +8,7 @@ import '../models/provider.dart';
 class ApiService {
   final String baseUrl;
 
-  ApiService({this.baseUrl = 'https://sahulat-backend-118267129512.us-central1.run.app'});
+  ApiService({this.baseUrl = 'https://sahulat-ai-backend-823935698067.us-central1.run.app'});
 
   // --------------------------------------------------------------------------
   // Chat: send a text message and receive an agentic response.
@@ -100,7 +100,12 @@ class ApiService {
   // --------------------------------------------------------------------------
   // Booking: confirm a provider booking.
   // --------------------------------------------------------------------------
-  Future<Map<String, dynamic>> confirmBooking(String providerId, {String? requestId}) async {
+  Future<Map<String, dynamic>> confirmBooking(
+    String providerId, {
+    String? requestId,
+    String? providerName,
+    String? timePreference,
+  }) async {
     final url = Uri.parse('$baseUrl/api/booking/confirm');
     try {
       final response = await http.post(
@@ -108,7 +113,9 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'provider_id': providerId,
-          'request_id': requestId,
+          if (requestId != null) 'request_id': requestId,
+          if (providerName != null) 'provider_name': providerName,
+          if (timePreference != null) 'time_preference': timePreference,
         }),
       );
 

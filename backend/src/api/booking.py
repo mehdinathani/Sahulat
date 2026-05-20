@@ -32,6 +32,8 @@ from ..services.booking_service import booking_service
 class BookingConfirmRequest(BaseModel):
     provider_id: str
     request_id: Optional[str] = None
+    provider_name: Optional[str] = None
+    time_preference: Optional[str] = None
 
 @router.post("/confirm")
 async def confirm_booking(request: BookingConfirmRequest):
@@ -41,7 +43,9 @@ async def confirm_booking(request: BookingConfirmRequest):
     try:
         booking = booking_service.create_booking(
             provider_id=request.provider_id,
-            request_id=request.request_id
+            request_id=request.request_id,
+            provider_name=request.provider_name,
+            time_preference=request.time_preference,
         )
         return {"status": "success", "message": "Booking confirmed successfully", "booking": booking}
     except Exception as e:

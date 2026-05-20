@@ -66,9 +66,27 @@ class _ChatScreenState extends State<ChatScreen> {
         if (await _audioRecorder.hasPermission()) {
           // Use temporary directory for recording
           final tempDir = Directory.systemTemp;
-          final path = p.join(tempDir.path, 'recording_${DateTime.now().millisecondsSinceEpoch}.wav');
           
-          const config = RecordConfig(encoder: AudioEncoder.wav); // Use WAV config for backend compatibility
+          AudioEncoder encoder = AudioEncoder.wav;
+          String extension = 'wav';
+          
+          // Check WAV support programmatically
+          final isWavSupported = await _audioRecorder.isEncoderSupported(AudioEncoder.wav);
+          if (!isWavSupported) {
+            final isPcmSupported = await _audioRecorder.isEncoderSupported(AudioEncoder.pcm16bits);
+            if (isPcmSupported) {
+              encoder = AudioEncoder.pcm16bits;
+              extension = 'pcm';
+            } else {
+              encoder = AudioEncoder.aacLc;
+              extension = 'm4a';
+            }
+          }
+          
+          final path = p.join(tempDir.path, 'recording_${DateTime.now().millisecondsSinceEpoch}.$extension');
+          final config = RecordConfig(encoder: encoder); // WAV/PCM/AAC config for maximum platform compatibility
+          
+          debugPrint('Starting record with encoder: $encoder, extension: $extension at path: $path');
           await _audioRecorder.start(config, path: path);
           provider.setListening(true);
         } else {
@@ -80,6 +98,11 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       } catch (e) {
         debugPrint('Error starting record: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not start recording: $e')),
+          );
+        }
       }
     }
   }

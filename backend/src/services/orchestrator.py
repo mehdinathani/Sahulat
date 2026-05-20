@@ -90,18 +90,32 @@ class Orchestrator:
         # ------------------------------------------------------------------ #
         if user_message.lower().startswith("book "):
             provider_name = user_message[5:].strip()
+
+            # Extract any time phrase the user re-stated when confirming
+            # (e.g. "book Ali AC Services kal subah"). The booking service
+            # parses this into a concrete slot.
+            booking_intent = await nlp_service.extract_intent(user_message)
+            time_preference = booking_intent.time_preference
+
             trace.append(AgentTrace(
                 step="Booking Process Started",
                 thought=f"User confirmed booking for '{provider_name}'. Initiating action simulation.",
                 action="booking_service.create_booking",
             ))
 
-            booking = booking_service.create_booking(provider_id=provider_name)
+            booking = booking_service.create_booking(
+                provider_id=provider_name,
+                provider_name=provider_name,
+                time_preference=time_preference,
+            )
 
             trace.append(AgentTrace(
                 step="[Action Executed: Simulated Booking Confirmed]",
                 thought="Booking record created and persisted to mock database.",
-                observation=f"Booking ID: {booking['id']} | Provider: {provider_name} | Status: BOOKED",
+                observation=(
+                    f"Booking ID: {booking['id']} | Provider: {provider_name} | "
+                    f"Slot: {booking.get('scheduledLabel', 'TBD')} | Status: BOOKED"
+                ),
             ))
 
             trace.append(AgentTrace(
@@ -119,8 +133,9 @@ class Orchestrator:
             confirmation_prompt = (
                 f"The user just confirmed a booking with {provider_name}. "
                 f"Booking ID is {booking['id']}. "
+                f"Scheduled slot: {booking.get('scheduledLabel', 'within an hour')}. "
                 "Write a short, friendly confirmation message (max 40 words). "
-                "Tell the user the booking is confirmed and a reminder will be sent."
+                "Mention the slot, confirm the booking, and say a reminder will be sent."
             )
             try:
                 gemini_reply = self.client.models.generate_content(
@@ -135,6 +150,7 @@ class Orchestrator:
                 print(f"Warning: Gemini confirmation generation failed ({e}). Using fallback.")
                 content = (
                     f"Your booking with **{provider_name}** is confirmed (ID: `{booking['id']}`). "
+                    f"Scheduled for **{booking.get('scheduledLabel', 'within an hour')}**. "
                     "A follow-up reminder has been scheduled. Track status in 'My Bookings'."
                 )
 
@@ -241,7 +257,10 @@ class Orchestrator:
             action="matching_service.find_best_matches",
         ))
 
-        matches = matching_service.find_best_matches(intent.service_type)
+        matches = matching_service.find_best_matches(
+            intent.service_type,
+            user_location=intent.location,
+        )
 
         if not matches:
             trace.append(AgentTrace(
@@ -271,10 +290,21 @@ class Orchestrator:
         best_match = matches[0]
         reasoning = matching_service.get_recommendation_reasoning(best_match)
 
+        score_breakdown = best_match.get("_score", {})
+        score_str = (
+            f"composite={score_breakdown.get('composite', 'n/a')} "
+            f"(rating={score_breakdown.get('rating', 'n/a')}, "
+            f"distance={score_breakdown.get('distance', 'n/a')}, "
+            f"price={score_breakdown.get('price', 'n/a')})"
+        )
         trace.append(AgentTrace(
             step="Ranking & Recommendation",
-            thought="Ranking providers by rating (desc) then distance (asc). Selecting top result.",
-            observation=f"Recommended: {best_match['name']} — {reasoning}",
+            thought=(
+                "Composite score = 0.55·rating + 0.35·distance + 0.10·price, "
+                "with a +0.05 boost for an exact neighbourhood match. "
+                "Availability is a hard filter."
+            ),
+            observation=f"Recommended: {best_match['name']} — {reasoning} | {score_str}",
         ))
 
         # Use Gemini (with system_instruction active) to generate a

@@ -18,7 +18,7 @@ class ChatProvider with ChangeNotifier {
   ChatState _state = ChatState.idle;
 
   ChatProvider({String? baseUrl}) {
-    _apiService = ApiService(baseUrl: baseUrl ?? 'https://sahulat-backend-118267129512.us-central1.run.app');
+    _apiService = ApiService(baseUrl: baseUrl ?? 'https://sahulat-ai-backend-823935698067.us-central1.run.app');
   }
 
   List<ChatMessage> get messages => _messages;

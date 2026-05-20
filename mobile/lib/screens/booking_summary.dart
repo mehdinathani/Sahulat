@@ -19,7 +19,10 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
     
     try {
       final apiService = ApiService();
-      await apiService.confirmBooking(widget.provider.name);
+      await apiService.confirmBooking(
+        widget.provider.id.isNotEmpty ? widget.provider.id : widget.provider.name,
+        providerName: widget.provider.name,
+      );
       
       if (mounted) {
         // Show success and pop back with true

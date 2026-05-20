@@ -13,6 +13,24 @@ class SettingsProvider with ChangeNotifier {
 
   bool get isDarkMode => _themeMode == ThemeMode.dark;
 
+  /// Whether the UI should lay out right-to-left.
+  /// True for Urdu (ur-PK); false otherwise (including 'auto' which defaults to LTR).
+  bool get isRtl => _languageCode == 'ur-PK';
+
+  TextDirection get textDirection =>
+      isRtl ? TextDirection.rtl : TextDirection.ltr;
+
+  Locale get locale {
+    switch (_languageCode) {
+      case 'ur-PK':
+        return const Locale('ur', 'PK');
+      case 'en-US':
+        return const Locale('en', 'US');
+      default:
+        return const Locale('en', 'US');
+    }
+  }
+
   void toggleTheme() {
     _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
     notifyListeners();

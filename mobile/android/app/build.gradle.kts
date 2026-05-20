@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -29,6 +31,16 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
+
+        // Inject Google Maps API key into AndroidManifest at build time.
+        // Add `MAPS_API_KEY=AIza...` to android/local.properties (gitignored) or
+        // pass `-PMAPS_API_KEY=...` on the Gradle command line.
+        val mapsApiKey: String = (project.findProperty("MAPS_API_KEY") as String?)
+            ?: Properties().apply {
+                val f = rootProject.file("local.properties")
+                if (f.exists()) f.inputStream().use { this.load(it) }
+            }.getProperty("MAPS_API_KEY", "")
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
