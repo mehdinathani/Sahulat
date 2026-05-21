@@ -10,3 +10,13 @@ test_venv/
 .gitignore
 mock_db.json
 backend.log
+.env
+.env.*
+service-account.json
+*.log
+backend_live.log
+tests/
+test_venv/
+test_api.py
+test_body.json
+scratch/

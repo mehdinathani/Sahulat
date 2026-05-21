@@ -177,10 +177,11 @@ async def speech_to_text(
                     target_lang = "ur-PK"
                     alt_langs = []
 
+                # Omit sample_rate_hertz so Cloud STT reads it from the WAV/FLAC
+                # header. Hardcoding 16000 rejects any device recording at a
+                # different rate (e.g., browser 48000, iOS 44100).
                 config = speech_v1.RecognitionConfig(
                     encoding=encoding,
-                    sample_rate_hertz=16000,
-                    # Support selected constraints or English + Urdu bilingual detection
                     language_code=target_lang,
                     alternative_language_codes=alt_langs,
                     enable_automatic_punctuation=True,

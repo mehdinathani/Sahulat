@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/provider.dart';
 import '../theme.dart';
@@ -34,6 +35,7 @@ class ProviderCard extends StatelessWidget {
     return Container(
       width: 280,
       margin: const EdgeInsets.only(right: 12),
+      // Card container with left accent bar (default teal) and subtle shadow
       decoration: BoxDecoration(
         color: isDark ? SahulatTheme.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -49,78 +51,99 @@ class ProviderCard extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
         ],
+        // Left accent bar for Flip7 card styling
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            // Default accent teal; could be dynamic based on state later
+            SahulatTheme.primaryColor,
+            isDark ? SahulatTheme.darkSurface : Colors.white,
+          ],
+          stops: const [0.0, 0.03],
+        ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header banner ─────────────────────────────────────────────
-            Container(
-              height: 90,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    SahulatTheme.primaryColor.withValues(alpha: 0.85),
-                    SahulatTheme.primaryColor.withValues(alpha: 0.4),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+            // ── Header banner with glassmorphism ─────────────────────────────────────────────
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
               ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Icon(
-                      _getCategoryIcon(provider.serviceType),
-                      size: 44,
-                      color: Colors.white.withValues(alpha: 0.7),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: Container(
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: SahulatTheme.primaryColor.withValues(alpha: 0.4),
+                    gradient: LinearGradient(
+                      colors: [
+                        SahulatTheme.primaryColor.withValues(alpha: 0.85),
+                        SahulatTheme.primaryColor.withValues(alpha: 0.4),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                   ),
-                  // Availability badge
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: provider.availability
-                            ? const Color(0xFF22C55E).withValues(alpha: 0.9)
-                            : const Color(0xFFEF4444).withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        provider.availability ? 'Available' : 'Busy',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Icon(
+                          _getCategoryIcon(provider.serviceType),
+                          size: 44,
+                          color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
-                    ),
-                  ),
-                  // Map icon button (top left) — only show if location is resolvable
-                  if (hasMapLocation && onViewMap != null)
-                    Positioned(
-                      top: 8,
-                      left: 10,
-                      child: GestureDetector(
-                        onTap: onViewMap,
+                      // Availability badge
+                      Positioned(
+                        top: 10,
+                        right: 10,
                         child: Container(
-                          padding: const EdgeInsets.all(6),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.35),
-                            borderRadius: BorderRadius.circular(10),
+                            color: provider.availability
+                                ? const Color(0xFF22C55E).withValues(alpha: 0.9)
+                                : const Color(0xFFEF4444).withValues(alpha: 0.9),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Icon(
-                            Icons.map_outlined,
-                            color: Colors.white,
-                            size: 16,
+                          child: Text(
+                            provider.availability ? 'Available' : 'Busy',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                      // Map icon button (top left) — only show if location is resolvable
+                      if (hasMapLocation && onViewMap != null)
+                        Positioned(
+                          top: 8,
+                          left: 10,
+                          child: GestureDetector(
+                            onTap: onViewMap,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.35),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.map_outlined,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
 

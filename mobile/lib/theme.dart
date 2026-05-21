@@ -5,9 +5,14 @@ class SahulatTheme {
   // ═══════════════════════════════════════════════════════════════════════════
   // Brand colors from DESIGN.md (Sahulat Oasis)
   // ═══════════════════════════════════════════════════════════════════════════
-  static const Color primaryColor = Color(0xFF0D9488); // Forest Emerald
-  static const Color primaryGlow = Color(0xFF14B8A6);
-  static const Color secondaryColor = Color(0xFFC2410C); // Clay Terracotta
+  // Flip7 Design System Colors
+  static const Color primaryColor = Color(0xFF2BA8A2); // Primary Teal
+  static const Color primaryGlow = Color(0xFF14B8A6); // Primary Light (keep)
+  static const Color secondaryColor = Color(0xFFEF6C4A); // Coral
+  static const Color accentGold = Color(0xFFFFD23F); // Gold CTA
+  static const Color accentCoral = Color(0xFFD45233); // Dark Coral
+  static const Color backgroundDark = Color(0xFF090D16); // Dark Background
+  static const Color surfaceDark = Color(0xFF111827); // Dark Surface
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Light Mode Colors — warm cream palette, high-contrast readable text

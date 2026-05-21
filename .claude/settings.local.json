@@ -2,7 +2,27 @@
   "permissions": {
     "allow": [
       "Bash(start cmd *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(curl -s -o /tmp/stt_response.txt -w \"HTTP: %{http_code}\\\\n\" -X POST \"https://sahulat-ai-backend-823935698067.us-central1.run.app/api/stt\" -F \"audio=@/dev/null;filename=empty.wav\" -F \"language_code=en-US\" -F \"preset=electrician\" --max-time 30)",
+      "Read(//tmp/**)",
+      "Bash(gcloud --version)",
+      "Bash(gcloud config *)",
+      "Bash(gcloud run *)",
+      "Bash(gcloud services *)",
+      "Bash(cat .gcloudignore)",
+      "Bash(ls -la service-account.json .env)",
+      "Bash(gcloud projects *)",
+      "Bash(cat .gitignore)",
+      "Bash(cat .dockerignore)",
+      "Bash(curl -s -X POST \"https://sahulat-ai-backend-823935698067.us-central1.run.app/api/stt\" -F \"audio=@/tmp/test_audio.wav\" -F \"language_code=en-US\" --max-time 60)",
+      "Bash(curl -sL -o /tmp/speech.wav \"https://archive.org/download/cd_alice-in-wonderland_lewis-carroll_susan-cox/disc1/01.01.%20Alice%27s%20Adventures%20In%20Wonderland%20-%20Lewis%20Carroll%20-%20Chapter%201%20Down%20the%20Rabbit-Hole_sample.wav\" --max-time 30)",
+      "Bash(curl -sL -o /tmp/speech.wav \"https://storage.googleapis.com/cloud-samples-data/speech/brooklyn_bridge.wav\" --max-time 30)",
+      "Bash(curl *)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('/tmp/openapi.json'\\)\\); print\\('  paths:'\\); [print\\('   ',m.upper\\(\\),p\\) for p,v in sorted\\(d['paths'].items\\(\\)\\) for m in v.keys\\(\\)]\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('content:',d.get\\('content',''\\)[:200]\\); p=d.get\\('providers'\\) or []; print\\('providers:', len\\(p\\)\\); [print\\(' ',x.get\\('name'\\),'-',x.get\\('service_type'\\)\\) for x in p[:3]]\")",
+      "Bash(dd if=/dev/zero of=/tmp/tiny.wav bs=500 count=1)",
+      "Bash(gcloud beta *)",
+      "Bash(gcloud auth *)"
     ]
   }
 }
