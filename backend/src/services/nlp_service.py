@@ -119,55 +119,56 @@ class NLPService:
 
     async def extract_intent(self, text: str) -> ExtractedIntent:
         """
-        Full intent extraction pipeline:
-          1. Rule-based conversational/navigational check
-          2. Cloud NLP entity extraction (supplementary / enrichment layer)
-          3. Gemini structured JSON extraction (primary)
-          4. Keyword fallback (demo safety net)
+        LLM-first intent extraction. Gemini owns the entire decision of
+        *what kind of message* this is and *what service* (if any) is being
+        requested. The previous hardcoded greeting set, nav-keyword list,
+        and "if 'electrician' in text" cascade have all been removed —
+        they short-circuited Gemini for messages it would have handled
+        correctly, and they broke for any service or phrasing not
+        anticipated by the author of the regex.
+
+        Pipeline:
+          1. Cloud NLP entity extraction (supplementary, non-blocking)
+          2. Gemini structured JSON extraction — classifies intent_kind
+             AND extracts service/location/time/language in one call
+          3. Keyword fallback (only when Gemini API itself fails)
         """
-        text_lower = text.lower()
-
-        # --- Detect non-service conversational queries first ---
-        greetings = {"hi", "hello", "hey", "salam", "assalam", "aoa", "hola", "yo"}
-        if text_lower.strip() in greetings or text_lower.startswith(("hi ", "hello ", "hey ", "salam ")):
-            return ExtractedIntent(
-                service_type="Greeting",
-                location=None,
-                time_preference=None,
-                original_text=text,
-                confidence=0.9,
-                language="en",
-            )
-
-        # Navigation / conversational queries (not service searches)
-        nav_keywords = ["booking", "cancel", "contact", "help", "thank", "status", "track"]
-        if any(kw in text_lower for kw in nav_keywords):
-            return ExtractedIntent(
-                service_type="Conversational",
-                location=None,
-                time_preference=None,
-                original_text=text,
-                confidence=0.8,
-                language="en",
-            )
-
         # Step 1: Cloud NLP entity extraction runs first (non-blocking on failure)
         entities = self.analyze_entities(text)
 
-        prompt = f"""Extract the following fields from the user's service request and return ONLY a JSON object:
+        prompt = f"""Classify the user's message and extract structured fields.
+Return ONLY a JSON object.
+
+Decide intent_kind FIRST:
+- "greeting": a pure greeting with no other content — "hi", "salam", "hello there", "AOA bhai"
+- "service_request": user wants ANY home/professional service — carpenter, painter,
+  pest control, gardener, mechanic, mover, tutor, plumber, electrician, AC tech,
+  cook, masseuse, anything. Do NOT restrict to a fixed list.
+- "conversational": anything else — small talk, thanks, booking status, help,
+  cancel, "how does this work", "what can you do", etc.
 
 Fields:
-- "service_type": The service needed in English (e.g., "AC Repair", "Plumber", "Electrician", "Tutor", "Carpenter"). Normalize synonyms: "AC wala" → "AC Repair", "nal wala" → "Plumber", "bijli wala" → "Electrician".
-- "location": Any area/sector mentioned (e.g., "G-13", "DHA", "Gulshan-e-Iqbal", "Johar", "Clifton"). Return null if not mentioned.
-- "time_preference": Any time hint (e.g., "kal subah", "tomorrow morning", "5 baje", "ASAP"). Return null if not mentioned.
-- "language": Detect the language — return "ur" if Arabic-script Urdu, "roman_ur" if Latin-script Urdu/mixed, "en" if English only.
-- "confidence": A float 0.0–1.0 reflecting extraction confidence.
+- "intent_kind": "greeting" | "service_request" | "conversational"
+- "service_type": If intent_kind="service_request", the service in English
+  Title Case (e.g. "Carpenter", "AC Repair", "Plumber", "Electrician", "Tutor",
+  "Painter", "Pest Control", "Mover", "Cook"). Normalize Roman Urdu / Urdu
+  synonyms — "barhai" → "Carpenter", "nal wala" → "Plumber", "bijli wala" →
+  "Electrician", "AC wala" → "AC Repair", "rang saaz" → "Painter". For
+  non-service messages, return null.
+- "location": Any area/sector/city mentioned (e.g. "G-13", "DHA", "Gulshan-e-Iqbal",
+  "Clifton", "Lahore"). null if not mentioned.
+- "time_preference": Any time hint ("kal subah", "tomorrow morning", "5 baje",
+  "ASAP", "abhi"). null if not mentioned.
+- "language": "ur" for Arabic-script Urdu, "roman_ur" for Latin-script
+  Urdu/mixed, "en" for English only.
+- "confidence": float 0.0–1.0.
 
-User Request: "{text}"
+User message: "{text}"
 
-Return ONLY this JSON structure, nothing else:
+Return ONLY this JSON:
 {{
-    "service_type": "string",
+    "intent_kind": "greeting | service_request | conversational",
+    "service_type": "string or null",
     "location": "string or null",
     "time_preference": "string or null",
     "language": "en | ur | roman_ur",
@@ -185,13 +186,33 @@ Return ONLY this JSON structure, nothing else:
             )
             data = json.loads(response.text)
 
+            kind = data.get("intent_kind") or "service_request"
+            if kind not in ("greeting", "service_request", "conversational"):
+                kind = "service_request"
+
+            # For non-service intents we don't need a service_type; pick a
+            # sentinel string so downstream Pydantic validation is happy
+            # without leaking the keyword-routing pattern back in.
+            raw_service = data.get("service_type")
+            if kind == "greeting":
+                service_type = "Greeting"
+            elif kind == "conversational":
+                service_type = "Conversational"
+            else:
+                service_type = raw_service or "Unknown"
+
             intent = ExtractedIntent(
-                service_type=data.get("service_type") or "Unknown",
+                service_type=service_type,
                 location=data.get("location"),
                 time_preference=data.get("time_preference"),
                 original_text=text,
-                confidence=data.get("confidence") if data.get("confidence") is not None else 0.0,
+                confidence=(
+                    data.get("confidence")
+                    if data.get("confidence") is not None
+                    else 0.0
+                ),
                 language=data.get("language") or "en",
+                intent_kind=kind,
             )
 
             # Step 2: Enrich with Cloud NLP entities (fill gaps only)
@@ -199,46 +220,88 @@ Return ONLY this JSON structure, nothing else:
 
         except Exception as e:
             print(f"NLP Service failed ({e}). Using keyword fallback.")
-            text_lower = text.lower()
+            return self._keyword_fallback(text, entities)
 
-            # --- Service keyword matching ---
-            service_type = "General Service"
-            location = None
+    def _keyword_fallback(
+        self,
+        text: str,
+        entities: List[Dict[str, Any]],
+    ) -> ExtractedIntent:
+        """
+        Last-resort keyword mapper used ONLY when Gemini is unreachable.
+        Deliberately narrow: classifies the obvious greetings + a few
+        common services so the demo doesn't go dark when the LLM API
+        fails. Anything not matched falls through to "Conversational"
+        so the orchestrator can still produce a graceful reply.
+        """
+        text_lower = text.lower().strip()
 
-            if "electrician" in text_lower or "bijli" in text_lower:
-                service_type = "Electrician"
-            elif "plumber" in text_lower or "nal" in text_lower:
-                service_type = "Plumber"
-            elif "ac" in text_lower:
-                service_type = "AC Repair"
-            elif "tutor" in text_lower or "teacher" in text_lower:
-                service_type = "Tutor"
-            elif "carpenter" in text_lower or "barhai" in text_lower:
-                service_type = "Carpenter"
+        greetings = {"hi", "hello", "hey", "salam", "assalam", "aoa", "hola", "yo"}
+        if text_lower in greetings or text_lower.startswith(
+            ("hi ", "hello ", "hey ", "salam ", "aoa ")
+        ):
+            return ExtractedIntent(
+                service_type="Greeting",
+                location=None,
+                time_preference=None,
+                original_text=text,
+                confidence=0.6,
+                language="en",
+                intent_kind="greeting",
+            )
 
-            if "gulshan" in text_lower:
-                location = "Gulshan-e-Iqbal"
-            elif "johar" in text_lower:
-                location = "Johar Town"
-            elif "dha" in text_lower:
-                location = "DHA"
-            elif "g-13" in text_lower or "g13" in text_lower:
-                location = "G-13"
-            elif "clifton" in text_lower:
-                location = "Clifton"
-            elif "karachi" in text_lower:
-                location = "Karachi"
+        service_type: Optional[str] = None
+        if "electrician" in text_lower or "bijli" in text_lower:
+            service_type = "Electrician"
+        elif "plumber" in text_lower or "nal" in text_lower:
+            service_type = "Plumber"
+        elif "ac " in text_lower or text_lower.startswith("ac") or "air condition" in text_lower:
+            service_type = "AC Repair"
+        elif "tutor" in text_lower or "teacher" in text_lower or "ustad" in text_lower:
+            service_type = "Tutor"
+        elif "carpenter" in text_lower or "barhai" in text_lower or "lakdi" in text_lower:
+            service_type = "Carpenter"
+        elif "painter" in text_lower or "rang" in text_lower:
+            service_type = "Painter"
 
-            # Still try to enrich fallback with Cloud NLP location data
+        location = None
+        for loc_kw, loc_name in (
+            ("gulshan", "Gulshan-e-Iqbal"),
+            ("johar", "Johar Town"),
+            ("dha", "DHA"),
+            ("g-13", "G-13"),
+            ("g13", "G-13"),
+            ("clifton", "Clifton"),
+            ("karachi", "Karachi"),
+            ("lahore", "Lahore"),
+        ):
+            if loc_kw in text_lower:
+                location = loc_name
+                break
+
+        if service_type is None:
+            # Couldn't classify as a service — treat as conversational so
+            # the orchestrator gives a graceful reply rather than 500.
+            intent = ExtractedIntent(
+                service_type="Conversational",
+                location=location,
+                time_preference=None,
+                original_text=text,
+                confidence=0.4,
+                language="en",
+                intent_kind="conversational",
+            )
+        else:
             intent = ExtractedIntent(
                 service_type=service_type,
                 location=location,
-                time_preference="ASAP" if service_type != "General Service" else None,
+                time_preference="ASAP",
                 original_text=text,
-                confidence=0.7,
+                confidence=0.6,
                 language="en",
+                intent_kind="service_request",
             )
-            return self._enrich_intent_from_entities(intent, entities)
+        return self._enrich_intent_from_entities(intent, entities)
 
 
 # Singleton instance
