@@ -2,7 +2,7 @@
   "providers": {
     "0": {
       "name": "Arshad Electrics",
-      "service_type": "electrician",
+      "service_type": "Electrician",
       "rating": 4.8,
       "price_per_hour": 500,
       "distance": 1.2,
@@ -12,7 +12,7 @@
     },
     "1": {
       "name": "Imran Wireman",
-      "service_type": "electrician",
+      "service_type": "Electrician",
       "rating": 4.5,
       "price_per_hour": 400,
       "distance": 2.5,
@@ -22,7 +22,7 @@
     },
     "2": {
       "name": "Sajid Plumber",
-      "service_type": "plumber",
+      "service_type": "Plumber",
       "rating": 4.9,
       "price_per_hour": 600,
       "distance": 0.8,
@@ -32,13 +32,73 @@
     },
     "3": {
       "name": "Kashif AC Services",
-      "service_type": "ac_repair",
+      "service_type": "AC Repair",
       "rating": 4.7,
       "price_per_hour": 1200,
       "distance": 3.0,
       "availability": true,
       "location": "North Nazimabad, Karachi",
       "experience": "8 years"
+    },
+    "seed-carpenter-1": {
+      "name": "Ustad Yousuf Carpentry",
+      "service_type": "Carpenter",
+      "rating": 4.7,
+      "price_per_hour": 800,
+      "distance": 1.5,
+      "availability": true,
+      "location": "G-13",
+      "experience": "12 years"
+    },
+    "seed-carpenter-2": {
+      "name": "Lakdi Works Lahore",
+      "service_type": "Carpenter",
+      "rating": 4.4,
+      "price_per_hour": 700,
+      "distance": 3.2,
+      "availability": true,
+      "location": "DHA, Lahore",
+      "experience": "6 years"
+    },
+    "seed-tutor-1": {
+      "name": "Sir Bilal Home Tutor",
+      "service_type": "Tutor",
+      "rating": 4.9,
+      "price_per_hour": 1500,
+      "distance": 2.0,
+      "availability": true,
+      "location": "F-11, Islamabad",
+      "experience": "9 years"
+    },
+    "seed-tutor-2": {
+      "name": "Madam Saira Academy",
+      "service_type": "Tutor",
+      "rating": 4.6,
+      "price_per_hour": 1200,
+      "distance": 4.5,
+      "availability": true,
+      "location": "Gulshan-e-Iqbal, Karachi",
+      "experience": "11 years"
+    },
+    "seed-painter-1": {
+      "name": "Rang Saaz Painters",
+      "service_type": "Painter",
+      "rating": 4.5,
+      "price_per_hour": 600,
+      "distance": 1.8,
+      "availability": true,
+      "location": "DHA, Karachi",
+      "experience": "8 years"
+    },
+    "seed-painter-2": {
+      "name": "Modern Paint Works",
+      "service_type": "Painter",
+      "rating": 4.3,
+      "price_per_hour": 550,
+      "distance": 2.7,
+      "availability": true,
+      "location": "G-13",
+      "experience": "5 years"
     },
     "b99f20c4-0fb1-4318-910b-41017194287d": {
       "name": "Ali AC Services",

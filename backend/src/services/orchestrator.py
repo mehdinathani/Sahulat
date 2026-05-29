@@ -69,6 +69,110 @@ class Orchestrator:
             "you to book this provider. Keep it under 60 words."
         )
 
+    # ---------------------------------------------------------------------- #
+    # Conversational / no-match helpers — Gemini-generated, language-aware    #
+    #                                                                          #
+    # Both return a fallback English string only if the Gemini call itself     #
+    # raises. They never substitute hardcoded text for what the LLM would     #
+    # have said correctly — that was the original bug.                        #
+    # ---------------------------------------------------------------------- #
+
+    def _gemini_text(self, prompt: str, fallback: str) -> str:
+        """Run a one-shot Gemini generation against the conversational
+        system instruction. Returns the trimmed text on success, the
+        provided fallback string on any exception."""
+        try:
+            reply = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=self.conversational_instruction
+                ),
+            )
+            text = (reply.text or "").strip()
+            return text or fallback
+        except Exception as e:
+            print(f"Warning: Gemini conversational generation failed ({e}). Using fallback.")
+            return fallback
+
+    def _generate_conversational_reply(
+        self,
+        user_message: str,
+        intent_language: str,
+        reply_kind: str,
+    ) -> str:
+        """
+        Ask Gemini to compose a greeting or a small-talk/help/thanks reply in
+        the SAME language the user used. The previous implementation matched
+        on substrings like "thank" / "help" / "cancel" and returned canned
+        English strings; that ignored Urdu and Roman Urdu users entirely and
+        felt scripted even in English. Now Gemini reads the actual message
+        and writes the reply.
+        """
+        if reply_kind == "greeting":
+            task = (
+                "The user just greeted you. Reply with a warm, brief greeting "
+                "in the SAME language they used. In one short sentence, introduce "
+                "yourself as Sahulat-AI — a helper that finds local service providers "
+                "(plumbers, electricians, AC techs, carpenters, painters, tutors, etc.) "
+                "— and invite them to tell you what they need. Max 35 words."
+            )
+        else:
+            task = (
+                "The user sent a non-service message — small talk, a thanks, a help "
+                "question, a question about bookings/cancellation/status, or something "
+                "else conversational. Read what they actually said and reply in the SAME "
+                "language with a short, warm, useful answer (max 50 words). "
+                "If they're asking about bookings/status/tracking, mention they can use "
+                "the 📋 icon in the top-right. If they're thanking you, accept it warmly "
+                "and offer further help. If they're asking for help/what you do, explain "
+                "you find local service providers. Never include hardcoded English text "
+                "if they wrote in Urdu or Roman Urdu."
+            )
+
+        prompt = (
+            f"User message: \"{user_message}\"\n"
+            f"Detected language: {intent_language}\n\n"
+            f"{task}"
+        )
+        # Fallback is intentionally generic and language-neutral.
+        return self._gemini_text(
+            prompt,
+            fallback="I'm here to help you find local services. What do you need?",
+        )
+
+    def _generate_no_match_reply(
+        self,
+        user_message: str,
+        intent_service: str,
+        intent_location: Optional[str],
+        intent_language: str,
+    ) -> str:
+        """
+        Ask Gemini to draft a friendly 'no providers available' message in the
+        user's language. The old hardcoded string forced English and assumed
+        `intent.location` was set; this version handles missing location and
+        whichever of en/ur/roman_ur the user typed.
+        """
+        loc_phrase = intent_location or "your area"
+        prompt = (
+            f"User message: \"{user_message}\"\n"
+            f"Detected language: {intent_language}\n"
+            f"Service they asked for: {intent_service}\n"
+            f"Area: {loc_phrase}\n\n"
+            "Task: We don't have any available providers matching this right now. "
+            "Write a warm, brief apology in the SAME language as the user's message, "
+            "acknowledge specifically what they asked for, and gently suggest they try "
+            "a related service or a wider area. Max 40 words. No JSON, no markdown headers."
+        )
+        return self._gemini_text(
+            prompt,
+            fallback=(
+                f"Sorry, I couldn't find any available **{intent_service}** "
+                f"providers in {loc_phrase} right now. Try a different service or area."
+            ),
+        )
+
     async def process_request(
         self,
         user_message: str,
@@ -202,50 +306,42 @@ class Orchestrator:
 
         # ------------------------------------------------------------------ #
         # Early returns for non-service intents                               #
+        # Both greeting and conversational replies are now generated by      #
+        # Gemini (in the user's language, using the antigravity system       #
+        # prompt) instead of being picked from a hardcoded string table.     #
         # ------------------------------------------------------------------ #
-        if intent.service_type == "Greeting":
-            return ChatResponse(
-                content=(
-                    "Hello! 👋 I'm **Sahulat-AI**, your smart service assistant. "
-                    "Tell me what service you need — like a plumber, electrician, "
-                    "AC repair, or tutor — and I'll find the best providers near you!"
-                ),
-                trace=trace,
-                suggested_actions=["Find a Plumber", "Find an Electrician", "AC Repair", "Find a Tutor"],
+        if intent.intent_kind == "greeting":
+            content = self._generate_conversational_reply(
+                user_message=user_message,
+                intent_language=intent.language,
+                reply_kind="greeting",
             )
-
-        if intent.service_type == "Conversational":
-            # Build a contextual response based on what the user asked
-            msg_lower = user_message.lower()
-            if "booking" in msg_lower or "status" in msg_lower or "track" in msg_lower:
-                content = (
-                    "You can view and track all your bookings using the 📋 icon in the "
-                    "top-right corner, or tap the button below."
-                )
-                actions = ["View My Bookings"]
-            elif "cancel" in msg_lower:
-                content = "Booking cancellation support is coming soon. For now, you can view your active bookings."
-                actions = ["View My Bookings"]
-            elif "contact" in msg_lower:
-                content = "Provider contact details are shown on each booking card. Check your bookings to find them."
-                actions = ["View My Bookings"]
-            elif "help" in msg_lower:
-                content = (
-                    "I can help you find and book local service providers! "
-                    "Just tell me what you need — e.g. 'I need a plumber in DHA'."
-                )
-                actions = ["Find a Plumber", "Find an Electrician", "AC Repair"]
-            elif "thank" in msg_lower:
-                content = "You're welcome! 😊 Let me know if you need anything else."
-                actions = ["Find a service", "View My Bookings"]
-            else:
-                content = "I'm here to help you find services. What do you need?"
-                actions = ["Find a Plumber", "Find an Electrician", "AC Repair"]
-
             return ChatResponse(
                 content=content,
                 trace=trace,
-                suggested_actions=actions,
+                suggested_actions=[
+                    "Find a Plumber",
+                    "Find an Electrician",
+                    "AC Repair",
+                    "Find a Tutor",
+                ],
+            )
+
+        if intent.intent_kind == "conversational":
+            content = self._generate_conversational_reply(
+                user_message=user_message,
+                intent_language=intent.language,
+                reply_kind="conversational",
+            )
+            # Suggested actions stay structured because they drive UI chips —
+            # but the reply text itself is language-aware and LLM-written.
+            return ChatResponse(
+                content=content,
+                trace=trace,
+                suggested_actions=[
+                    "View My Bookings",
+                    "Find a service",
+                ],
             )
 
         # ------------------------------------------------------------------ #
@@ -265,15 +361,17 @@ class Orchestrator:
         if not matches:
             trace.append(AgentTrace(
                 step="No Matches Found",
-                thought="No providers found for this service/location. Suggesting alternatives.",
+                thought="No providers found for this service/location. Asking Gemini to draft a friendly alternative-suggestion reply in the user's language.",
                 observation="Zero results returned from provider database.",
             ))
+            content = self._generate_no_match_reply(
+                user_message=user_message,
+                intent_service=intent.service_type,
+                intent_location=intent.location,
+                intent_language=intent.language,
+            )
             return ChatResponse(
-                content=(
-                    f"Sorry, I couldn't find any available **{intent.service_type}** "
-                    f"providers in {intent.location} right now. "
-                    "Try a different service or area."
-                ),
+                content=content,
                 trace=trace,
                 suggested_actions=["Try another service", "Expand search area"],
             )
